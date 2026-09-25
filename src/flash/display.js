@@ -382,8 +382,11 @@ export class BitmapObj extends DisplayObject {
 
 // ---- the drawing API ------------------------------------------------------------------
 
+let nextGraphics = 1;
+
 export class Graphics {
   constructor() {
+    this.$id = nextGraphics++;
     this.ops = [];
     this.bounds = null;
     this.pen = [0, 0];

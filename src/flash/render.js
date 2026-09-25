@@ -21,9 +21,13 @@ export class Renderer {
     this.offsetX = 0;
     this.offsetY = 0;
     this.tints = new Map();           // "bitmapId|cx" -> canvas
-    this.filterDefs = new Map();      // key -> id
+    this.filterDefs = new Map();      // key -> { id, el }
+    this.filterIds = 1;
     this.filterSvg = null;
     this.scratch = [];                // offscreen canvases for filtered objects
+    this.fcache = new Map();          // object -> its filtered image (see drawFiltered)
+    this.fcachePixels = 0;
+    this.fcacheIds = 1;
   }
 
   // Fit the stage into the canvas, preserving aspect ratio (Flash's "showAll").
@@ -549,34 +553,108 @@ export class Renderer {
   }
 
   // ---- filters ----------------------------------------------------------------------------
-  // The object is drawn to an offscreen canvas in device space, then composited through
-  // an SVG filter chain built from the Flash filter parameters.
+  // Flash drew an object that has filters as a cached bitmap: its content rendered once,
+  // filtered, and reused until the content or its scale changed; drawn at a whole-pixel
+  // position, with the object's own colour transform applied to the filtered result.  So
+  // does this.  The filtering itself is an SVG filter chain built from the Flash filter
+  // parameters (defineFilter).
   drawFiltered(ctx, obj, m, cx) {
     const lb = obj.$localBounds();
     if (!lb) return;
-    const pad = this.filterPad(obj.$filters) * this.scale;
+    const filters = obj.$filters;
+    const pad = Math.ceil(this.filterPad(filters) * this.scale);
     const db = boundsOf(m, lb);
-    const cw = ctx.canvas.width, chh = ctx.canvas.height;     // the stage, or a BitmapData
-    const x0 = Math.max(-pad, Math.floor(db[0] - pad));
-    const y0 = Math.max(-pad, Math.floor(db[1] - pad));
-    const x1 = Math.min(cw + pad, Math.ceil(db[2] + pad));
-    const y1 = Math.min(chh + pad, Math.ceil(db[3] + pad));
+    let x0 = Math.floor(db[0]) - pad, y0 = Math.floor(db[1]) - pad;
+    let x1 = Math.ceil(db[2]) + pad, y1 = Math.ceil(db[3]) + pad;
+    let clamp = '';
+    if ((x1 - x0) * (y1 - y0) > 4e6) {
+      // Too big to keep whole (a filtered terrain, say): keep only what is on the canvas,
+      // and draw it again when it moves.
+      x0 = Math.max(x0, -pad); y0 = Math.max(y0, -pad);
+      x1 = Math.min(x1, ctx.canvas.width + pad); y1 = Math.min(y1, ctx.canvas.height + pad);
+      clamp = `${x0},${y0},${x1},${y1},${m[4]},${m[5]}`;
+    }
     const w = x1 - x0, h = y1 - y0;
-    if (w <= 0 || h <= 0 || w * h > 16e6) return this.drawContent(ctx, obj, m, cx);
-    const off = this.offscreen(w, h);
-    const octx = off.getContext('2d');
-    octx.setTransform(1, 0, 0, 1, 0, 0);
-    octx.globalAlpha = 1;
-    octx.filter = 'none';
-    octx.clearRect(0, 0, w, h);
-    this.drawContent(octx, obj, mul([1, 0, 0, 1, -x0, -y0], m), cx);
+    if (w <= 0 || h <= 0) return;
+    if (w * h > 16e6) return this.drawContent(ctx, obj, m, cx);
+
+    const key = `${m[0]},${m[1]},${m[2]},${m[3]}|${clamp}|${JSON.stringify(filters)}|${this.contentSig(obj)}`;
+    let e = this.fcache.get(obj);
+    if (!e || e.key !== key) {
+      if (e) this.fcachePixels -= e.canvas.width * e.canvas.height;
+      const src = this.offscreen(w, h);
+      const sctx = src.getContext('2d');
+      sctx.setTransform(1, 0, 0, 1, 0, 0);
+      sctx.globalAlpha = 1;
+      sctx.filter = 'none';
+      sctx.clearRect(0, 0, w, h);
+      this.drawContent(sctx, obj, mul([1, 0, 0, 1, -x0, -y0], m), null);
+      const out = e && e.canvas.width === w && e.canvas.height === h ? e.canvas : document.createElement('canvas');
+      out.width = w;
+      out.height = h;
+      const octx = out.getContext('2d');
+      octx.filter = this.filterUrl(filters);
+      octx.drawImage(src, 0, 0, w, h, 0, 0, w, h);
+      this.scratch.push(src);
+      e = { key, canvas: out, x0, y0, tx: m[4], ty: m[5], version: (e ? e.version : 0) + 1, id: this.fcacheIds++ };
+      this.fcachePixels += w * h;
+    }
+    this.fcache.delete(obj);                       // most recently used last
+    this.fcache.set(obj, e);
+    while (this.fcachePixels > 24e6 && this.fcache.size > 1) {
+      const [old, oe] = this.fcache.entries().next().value;
+      this.fcache.delete(old);
+      this.fcachePixels -= oe.canvas.width * oe.canvas.height;
+    }
+
+    const dx = e.x0 + Math.round(m[4] - e.tx);
+    const dy = e.y0 + Math.round(m[5] - e.ty);
     ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.globalAlpha = 1;
-    ctx.filter = this.filterUrl(obj.$filters);
-    ctx.drawImage(off, 0, 0, w, h, x0, y0, w, h);
+    ctx.filter = 'none';
+    if (cxIsIdentity(cx)) {
+      ctx.globalAlpha = 1;
+      ctx.drawImage(e.canvas, dx, dy);
+    } else if (cxAlphaOnly(cx) && cx[3] <= 256 && cx[7] === 0) {
+      ctx.globalAlpha = Math.max(0, cx[3] / 256);
+      ctx.drawImage(e.canvas, dx, dy);
+    } else {
+      ctx.globalAlpha = 1;
+      ctx.drawImage(this.tinted(`filt${e.id}:${e.version}`, e.canvas, cx), dx, dy);
+    }
     ctx.restore();
-    this.scratch.push(off);
+  }
+
+  // Everything below obj that decides how it draws, as a string: a cached filtered image
+  // stays valid for as long as this does not change.
+  contentSig(obj) {
+    const text = this.player.text;
+    const parts = [];
+    const walk = (o, top) => {
+      parts.push(o.$id);
+      if (!top) {
+        parts.push(o.$visible ? 1 : 0, o.$m.join(','));
+        if (o.$cx) parts.push(o.$cx.join(','));
+        if (o.$filters) parts.push(JSON.stringify(o.$filters));
+        if (o.$clipDepth) parts.push('k' + o.$clipDepth);
+        if (o.$maskOf) parts.push('mo');
+      }
+      if (o.$maskClip) parts.push('m' + o.$maskClip.$id + ':' + o.$maskClip.$worldMatrix().join(','));
+      if (o instanceof MovieClip) {
+        parts.push('f' + o.$cur);
+        if (o.$gfx) parts.push('g' + o.$gfx.$id + ':' + o.$gfx.ops.length);
+      } else if (o instanceof MorphObj) {
+        parts.push('r' + o.$ratio);
+      } else if (o instanceof EditText) {
+        text.bind(o);
+        parts.push(o.$text, o.$html ? 1 : 0, o.$color.join(','), o.$scroll, o.$focus && text.caretOn ? 1 : 0);
+      } else if (o instanceof BitmapObj) {
+        parts.push('b' + o.$bmd.$id + ':' + o.$bmd.$version);
+      }
+      if (o.$children) for (const c of o.$children) walk(c, false);
+    };
+    walk(obj, true);
+    return parts.join('|');
   }
 
   offscreen(w, h) {
@@ -598,15 +676,24 @@ export class Renderer {
     return Math.ceil(p) + 2;
   }
 
+  // One SVG <filter> per distinct filter list, the least recently used dropped beyond 128
+  // (some filters are animated, with new parameters every frame).
   filterUrl(filters) {
     const key = this.scale.toFixed(3) + '|' + JSON.stringify(filters);
-    let id = this.filterDefs.get(key);
-    if (!id) {
-      id = 'cacf' + this.filterDefs.size;
-      this.filterDefs.set(key, id);
-      this.defineFilter(id, filters);
+    let d = this.filterDefs.get(key);
+    if (d) {
+      this.filterDefs.delete(key);
+    } else {
+      d = { id: 'cacf' + this.filterIds++ };
+      d.el = this.defineFilter(d.id, filters);
+      if (this.filterDefs.size >= 128) {
+        const [k, old] = this.filterDefs.entries().next().value;
+        this.filterDefs.delete(k);
+        old.el.remove();
+      }
     }
-    return `url(#${id})`;
+    this.filterDefs.set(key, d);
+    return `url(#${d.id})`;
   }
 
   defineFilter(id, filters) {
@@ -679,5 +766,6 @@ export class Renderer {
       src = out;
     }
     this.filterSvg.appendChild(fe);
+    return fe;
   }
 }
