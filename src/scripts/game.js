@@ -837,7 +837,7 @@
          {
             if(t < 20)
             {
-               return b & c | (b ^ -1) & d;
+               return b & c | ~b & d;
             }
             if(t < 40)
             {
@@ -8383,7 +8383,7 @@
          };
          this.calcFPS = function ()
          {
-            this.currentTime = 10152;
+            this.currentTime = getTimer?.();
             this.frameDuration = this.currentTime - this.previousTime;
             this.previousTime = this.currentTime;
             return int?.(1000 / this.frameDuration);

@@ -44,6 +44,8 @@ globalThis.player = player;                // for the console and the verificati
 const params = new URLSearchParams(location.search);
 const TEST = params.has('test');
 if (params.has('seed')) player.seedRandom(Number(params.get('seed')) || 0);
+// ?glfilters: Flash-exact filters on the GPU even where WebGL is software-rendered.
+if (params.has('glfilters')) player.renderer.forceGL = true;
 globalThis.__step = (n = 1) => {
   for (let i = 0; i < n; i++) player.tick();
   player.draw();

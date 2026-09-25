@@ -10,8 +10,10 @@ Writes, for each of loader.swf and game(original).swf:
     work/ffdec/<movie>_as/      ActionScript, deobfuscated
 
 The game's scripts were run through an obfuscator (flattened control flow, a shared
-constant pool); without these settings the export is unreadable.  FFDec 26.2.1 on Java 8
-was used to produce the files this repository was built from.
+constant pool, unreachable junk blocks); without these settings the export is unreadable.
+Expression simplification stays off: it adds nothing here, and it evaluates getTimer() at
+decompile time (the game's frame-rate readout came out as `this.currentTime = 10152`).
+FFDec 26.2.1 on Java 8 was used to produce the files this repository was built from.
 
 Then: python tools/build_library.py && python tools/transpile.py
 """
@@ -25,7 +27,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 DEFAULT_ORIGINAL = r'D:\Claude_RTSGames\CRYSTALIEN\CrystAlienConflict'
 DEFAULT_FFDEC = os.environ.get('FFDEC', r'D:\Claude_RTSGames\tools\ffdec\ffdec-cli.exe')
 MOVIES = {'loader': 'loader.swf', 'game': 'game(original).swf'}
-DEOBFUSCATE = 'autoDeobfuscate=1,resolveConstants=1,simplifyExpressions=1,as12DeobfuscatorExecutionLimit=200000'
+DEOBFUSCATE = 'autoDeobfuscate=1,resolveConstants=1,simplifyExpressions=0,as12DeobfuscatorExecutionLimit=200000'
 
 
 def run(cmd):

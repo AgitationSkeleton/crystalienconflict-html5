@@ -30,6 +30,7 @@ def main():
     ap.add_argument('out')
     ap.add_argument('actions', nargs='*')
     ap.add_argument('--scale', default='1')
+    ap.add_argument('--query', default='', help='extra query string for the port, e.g. glfilters')
     args = ap.parse_args()
     ref = os.path.join(ROOT, 'reference')
     for need in ('ruffle/ruffle.js', 'swf/loader.swf', 'swf/game.swf', 'swf/dialogue.xml'):
@@ -37,7 +38,7 @@ def main():
             raise SystemExit('reference/%s is missing: see the header of this file' % need)
     shutil.copyfile(os.path.join(HERE, 'ruffle.html'), os.path.join(ref, 'swf', 'index.html'))
     runs = {
-        'port': ('index.html', args.actions, 8765),
+        'port': ('index.html' + ('?' + args.query if args.query else ''), args.actions, 8765),
         # Ruffle takes the first click to focus itself, and loads game.swf from disk at once.
         'ruffle': ('reference/swf/index.html',
                    [a if a != 'boot' else 'BOOT' for a in args.actions], 8766),

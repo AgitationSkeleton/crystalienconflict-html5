@@ -96,8 +96,11 @@ def main():
         # are worth logging.
         page.on('requestfailed', lambda r: r.failure == 'net::ERR_ABORTED' or
                 log.append('[requestfailed] %s %s' % (r.url, r.failure)))
-        query = '?test&seed=%d' % args.seed if args.test else ''
-        page.goto('http://127.0.0.1:%d/%s%s' % (args.port, args.page, query))
+        query = 'test&seed=%d' % args.seed if args.test else ''
+        page_url = args.page
+        if query:
+            page_url += ('&' if '?' in page_url else '?') + query
+        page.goto('http://127.0.0.1:%d/%s' % (args.port, page_url))
         t0 = time.time()
         for act in args.actions:
             op, _, rest = act.partition(' ')

@@ -30,7 +30,11 @@ then open <http://localhost:8000/>.
 At runtime, `src/flash/` is the player:
 
 - `display.js` — the display list, timelines, and the MovieClip/Button/TextField API
-- `render.js` — Canvas 2D drawing, masks, colour transforms, filters (as SVG filters)
+- `render.js` — Canvas 2D drawing, masks, colour transforms; objects with filters are
+  cached as bitmaps, as Flash did
+- `filters.js` — Flash's blur, glow, drop shadow and colour matrix filters on the GPU
+  (WebGL2), computed the way Flash Player computed them; where WebGL is missing or
+  software-rendered, `render.js` approximates them with SVG filters instead
 - `text.js` — text fields, laid out from the embedded font outlines
 - `sound.js` — event sounds through Web Audio
 - `player.js`, `as2.js` — the frame loop, input, and ActionScript's built-in classes
@@ -82,7 +86,8 @@ Ruffle is a very good reference, but not a perfect one: it does not show the col
 matrix that turns the terrain white on the Christmas level, which the port does.
 
 For repeatable runs, open the page as `index.html?test&seed=1`: the clock stops, frames
-advance only when `__step(n)` is called, and random numbers follow the seed.
+advance only when `__step(n)` is called, and random numbers follow the seed. Adding
+`glfilters` forces the GPU filters even on a software renderer (headless Chromium).
 `tools/verify/drive.py --test` scripts runs that way, and `tools/verify/smoke.py` plays
 a set of scenarios, including thousands of frames of random input on several levels,
 and fails on any script error.

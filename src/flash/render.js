@@ -7,6 +7,7 @@
 
 import { mul, invert, cxMul, cxIsIdentity, cxAlphaOnly, cxApplyRGBA, cssColor, cxKey, boundsOf } from './geom.js';
 import { MovieClip, ShapeObj, MorphObj, TextObj, EditText, ButtonObj, BitmapObj } from './display.js';
+import { GLFilters, filterPadding, scaleBlur } from './filters.js';
 
 const SVGNS = 'http://www.w3.org/2000/svg';
 
@@ -25,7 +26,12 @@ export class Renderer {
     this.filterIds = 1;
     this.filterSvg = null;
     this.scratch = [];                // offscreen canvases for filtered objects
+    this.gl = undefined;              // GLFilters, made on first use (null: not available)
+    this.forceGL = false;             // use it even on a software renderer (tests)
+    this.glTime = 0;                  // time spent in it, and how many runs (see glRun)
+    this.glRuns = 0;
     this.fcache = new Map();          // object -> its filtered image (see drawFiltered)
+    this.potent = new WeakMap();      // filter list -> the part that does something
     this.fcachePixels = 0;
     this.fcacheIds = 1;
   }
@@ -84,12 +90,14 @@ export class Renderer {
       ctx.save();
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clip(clip, 'nonzero');
-      if (obj.$filters && obj.$filters.length) this.drawFiltered(ctx, obj, m, cx);
+      const fl = this.potentFilters(obj.$filters);
+      if (fl) this.drawFiltered(ctx, obj, m, cx, fl);
       else this.drawContent(ctx, obj, m, cx);
       ctx.restore();
       return;
     }
-    if (obj.$filters && obj.$filters.length) return this.drawFiltered(ctx, obj, m, cx);
+    const fl = this.potentFilters(obj.$filters);
+    if (fl) return this.drawFiltered(ctx, obj, m, cx, fl);
     this.drawContent(ctx, obj, m, cx);
   }
 
@@ -556,13 +564,46 @@ export class Renderer {
   // Flash drew an object that has filters as a cached bitmap: its content rendered once,
   // filtered, and reused until the content or its scale changed; drawn at a whole-pixel
   // position, with the object's own colour transform applied to the filtered result.  So
-  // does this.  The filtering itself is an SVG filter chain built from the Flash filter
-  // parameters (defineFilter).
-  drawFiltered(ctx, obj, m, cx) {
+  // does this.  The filtering is Flash's own arithmetic on the GPU (filters.js); without
+  // WebGL2 it falls back to an SVG filter chain that approximates it (defineFilter).
+  // Filter on the GPU if it is there and pays its way: if its runs average more than 5ms
+  // (uploads and readbacks can stall on some systems), use the SVG filters from then on.
+  glRun(src, w, h, filters, octx) {
+    if (!this.gl) return false;
+    const t0 = performance.now();
+    const ok = this.gl.run(src, w, h, filters, this.scale, octx);
+    this.glTime += performance.now() - t0;
+    if (!ok || (++this.glRuns >= 60 && this.glTime / this.glRuns > 5 && !this.forceGL)) {
+      console.info('[render] filters: using SVG filters from now on');
+      this.gl = null;
+      this.fcache.clear();
+      this.fcachePixels = 0;
+    }
+    return ok;
+  }
+
+  // The filters that do something, or null.  A blur of at most one pixel, or with no
+  // passes, changes nothing and is skipped, as Flash skipped it; so is an identity colour
+  // matrix.  (Tweened blurs pass through 0 and 1 all the time.)
+  potentFilters(filters) {
+    if (!filters || !filters.length) return null;
+    let fl = this.potent.get(filters);
+    if (fl === undefined) {
+      fl = filters.filter((f) => {
+        if (f.type === 'blur') return (f.passes || 0) > 0 && (f.blurX > 1 || f.blurY > 1);
+        if (f.type === 'colorMatrix') return !f.matrix.every((v, i) => v === ([0, 6, 12, 18].includes(i) ? 1 : 0));
+        return true;
+      });
+      if (!fl.length) fl = null;
+      this.potent.set(filters, fl);
+    }
+    return fl;
+  }
+
+  drawFiltered(ctx, obj, m, cx, filters) {
     const lb = obj.$localBounds();
     if (!lb) return;
-    const filters = obj.$filters;
-    const pad = Math.ceil(this.filterPad(filters) * this.scale);
+    const pad = filterPadding(filters, this.scale);
     const db = boundsOf(m, lb);
     let x0 = Math.floor(db[0]) - pad, y0 = Math.floor(db[1]) - pad;
     let x1 = Math.ceil(db[2]) + pad, y1 = Math.ceil(db[3]) + pad;
@@ -593,8 +634,16 @@ export class Renderer {
       out.width = w;
       out.height = h;
       const octx = out.getContext('2d');
-      octx.filter = this.filterUrl(filters);
-      octx.drawImage(src, 0, 0, w, h, 0, 0, w, h);
+      // Blurs, glows and shadows go to the GPU, where their shape is Flash's exactly; a
+      // colour matrix alone is exact as an SVG filter too, and cheaper there.
+      const blurs = filters.some((f) => f.type !== 'colorMatrix');
+      if (blurs && this.gl === undefined) this.gl = GLFilters.create(this.forceGL);
+      if (!blurs || !this.glRun(src, w, h, filters, octx)) {
+        octx.clearRect(0, 0, w, h);
+        octx.filter = this.filterUrl(filters);
+        octx.drawImage(src, 0, 0, w, h, 0, 0, w, h);
+        octx.filter = 'none';
+      }
       this.scratch.push(src);
       e = { key, canvas: out, x0, y0, tx: m[4], ty: m[5], version: (e ? e.version : 0) + 1, id: this.fcacheIds++ };
       this.fcachePixels += w * h;
@@ -720,9 +769,16 @@ export class Renderer {
       fe.appendChild(e);
       return e;
     };
-    // Flash's blur is a box blur `passes` times; a box of width w has sigma w/sqrt(12),
-    // and n passes compound to sigma * sqrt(n).
-    const sigma = (b, passes) => (b * s / Math.sqrt(12)) * Math.sqrt(Math.max(1, passes || 1));
+    // Without the GPU path this approximates Flash's box blur with a Gaussian of the same
+    // spread: a box of width w has sigma w/sqrt(12), and n passes compound to sigma*sqrt(n).
+    // The glow arithmetic is Flash's (Ruffle's glow.wgsl).
+    const sigma = (b, passes) => (Math.max(0, scaleBlur(b, s)) / Math.sqrt(12)) * Math.sqrt(Math.max(1, passes || 1));
+    const node = (parent, tag, attrs) => {
+      const e = document.createElementNS(SVGNS, tag);
+      for (const k in attrs) e.setAttribute(k, attrs[k]);
+      parent.appendChild(e);
+      return e;
+    };
     for (const f of filters) {
       const out = 'r' + (n++);
       if (f.type === 'blur') {
@@ -734,31 +790,27 @@ export class Renderer {
       } else if (f.type === 'glow' || f.type === 'dropShadow') {
         const [r, g, b, a] = f.color;
         const strength = f.strength === undefined ? 1 : f.strength;
-        const dist = f.type === 'dropShadow' ? f.distance * s : 0;
-        const ang = f.type === 'dropShadow' ? f.angle : 0;
-        el('feGaussianBlur', { in: 'SourceAlpha', stdDeviation: `${sigma(f.blurX, f.passes)} ${sigma(f.blurY, f.passes)}`, result: out + 'b' });
+        const dist = f.type === 'dropShadow' ? (f.distance || 0) * s : 0;
+        const ang = f.type === 'dropShadow' ? f.angle || 0 : 0;
+        // The alpha of the image so far, blurred, and moved for a shadow.
+        el('feColorMatrix', { in: src, type: 'matrix', values: '0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0', result: out + 'a' });
+        el('feGaussianBlur', { in: out + 'a', stdDeviation: `${sigma(f.blurX, f.passes)} ${sigma(f.blurY, f.passes)}`, result: out + 'b' });
         el('feOffset', { in: out + 'b', dx: dist * Math.cos(ang), dy: dist * Math.sin(ang), result: out + 'o' });
-        // Strength scales the blurred alpha before it is coloured, as Flash's does.
-        el('feComponentTransfer', { in: out + 'o', result: out + 's' }).appendChild((() => {
-          const fa = document.createElementNS(SVGNS, 'feFuncA');
-          fa.setAttribute('type', 'linear');
-          fa.setAttribute('slope', String(strength));
-          return fa;
-        })());
+        // Outer glows are strength x blur, inner ones strength x (1 - blur), clamped.
+        node(el('feComponentTransfer', { in: out + 'o', result: out + 's' }), 'feFuncA',
+          f.inner ? { type: 'linear', slope: -strength, intercept: strength } : { type: 'linear', slope: strength });
         el('feFlood', { 'flood-color': `rgb(${r},${g},${b})`, 'flood-opacity': String(a / 255), result: out + 'c' });
         el('feComposite', { in: out + 'c', in2: out + 's', operator: 'in', result: out + 'g' });
+        const composite = f.composite !== 0;
         if (f.inner) {
-          el('feComposite', { in: out + 'g', in2: 'SourceAlpha', operator: 'out', result: out + 'i' });
-          el('feComposite', { in: out + 'i', in2: src, operator: 'atop', result: out });
+          el('feComposite', { in: out + 'g', in2: src, operator: f.knockout || !composite ? 'in' : 'atop', result: out });
         } else if (f.knockout) {
-          el('feComposite', { in: out + 'g', in2: 'SourceAlpha', operator: 'out', result: out });
-        } else {
+          el('feComposite', { in: out + 'g', in2: src, operator: 'out', result: out });
+        } else if (composite) {
           const mg = el('feMerge', { result: out });
-          for (const inp of [out + 'g', src]) {
-            const node = document.createElementNS(SVGNS, 'feMergeNode');
-            node.setAttribute('in', inp);
-            mg.appendChild(node);
-          }
+          for (const inp of [out + 'g', src]) node(mg, 'feMergeNode', { in: inp });
+        } else {
+          el('feOffset', { in: out + 'g', dx: 0, dy: 0, result: out });     // the glow alone
         }
       } else {
         continue;                   // bevel/convolution/gradient filters: not in this game
