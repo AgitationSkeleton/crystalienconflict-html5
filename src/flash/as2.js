@@ -243,10 +243,16 @@ export function installBuiltins(player) {
         const raw = localStorage.getItem(key);
         if (raw) data = JSON.parse(raw);
       } catch (e) { /* storage unavailable or corrupt: start empty, as a new SO would */ }
+      let saved = JSON.stringify(data);
       const so = {
         data,
         flush() {
-          try { localStorage.setItem(key, JSON.stringify(so.data)); return true; } catch (e) { return false; }
+          try {
+            const now = JSON.stringify(so.data);
+            if (now !== saved) localStorage.setItem(key, now);
+            saved = now;
+            return true;
+          } catch (e) { return false; }
         },
         clear() {
           for (const k of Object.keys(so.data)) delete so.data[k];
@@ -258,8 +264,13 @@ export function installBuiltins(player) {
       return so;
     },
   };
-  // Flash writes shared objects when the player closes; so does leaving the page.
-  addEventListener('pagehide', () => { for (const so of sos.values()) so.flush(); });
+  // Flash wrote shared objects when the player closed, and the game never calls flush()
+  // itself.  A browser tab can be closed or killed without warning, so progress is also
+  // written whenever the page is hidden, and every few seconds if it has changed.
+  const flushAll = () => { for (const so of sos.values()) so.flush(); };
+  addEventListener('pagehide', flushAll);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushAll(); });
+  setInterval(flushAll, 5000);
 
   // ---- XML ------------------------------------------------------------------------------------
   B.XML = makeXML(player);

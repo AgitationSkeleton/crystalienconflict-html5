@@ -52,7 +52,8 @@ export class SoundSystem {
   }
 
   refreshVolumes() {
-    for (const p of this.playing) p.gain.gain.value = this.volumeOf(p.owner) * p.envelope;
+    // (A sound still being decoded has no gain node yet; it reads the volume when it starts.)
+    for (const p of this.playing) if (p.gain) p.gain.gain.value = this.volumeOf(p.owner) * p.envelope;
   }
 
   // A StartSound tag: SOUNDINFO decides whether it stops, restarts, or loops.

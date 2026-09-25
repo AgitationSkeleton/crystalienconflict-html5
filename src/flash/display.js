@@ -206,9 +206,9 @@ export class DisplayObject {
   set _name(v) {
     v = String(v);
     const p = this.$parent;
-    if (p && p[this.$name] === this) delete p[this.$name];
+    if (p && p.$unlink) p.$unlink(this);
     this.$name = v;
-    if (p) p[v] = this;
+    if (p && p.$link) p.$link(this);
   }
 
   get _parent() { return this.$parent || undefined; }
@@ -432,15 +432,42 @@ export class MovieClip extends DisplayObject {
     let i = c.length;
     while (i > 0 && c[i - 1].$depth > depth) i--;
     c.splice(i, 0, child);
-    if (child.$name) this[child.$name] = child;
+    this.$link(child);
   }
 
   $remove(child) {
     const c = this.$children;
     const i = c.indexOf(child);
     if (i >= 0) c.splice(i, 1);
-    if (child.$name && this[child.$name] === child) delete this[child.$name];
+    this.$unlink(child);
     child.$markRemoved();
+  }
+
+  // A named child can be reached as a property of its parent -- unless the parent has a
+  // variable of that name, which comes first in AVM1's lookup.  (The game relies on it:
+  // new Game() puts a clip called "Game" on _root, and _root.Game must stay the class.)
+  $link(child) {
+    const n = child.$name;
+    if (!n) return;
+    if (!this.$links) this.$links = new Map();
+    const cur = Object.getOwnPropertyDescriptor(this, n);
+    if (cur && this.$links.get(n) !== cur.value) return;       // a variable: it wins
+    Object.defineProperty(this, n, { value: child, writable: true, enumerable: true, configurable: true });
+    this.$links.set(n, child);
+  }
+
+  $unlink(child) {
+    const n = child.$name;
+    if (!n || !this.$links || this.$links.get(n) !== child) return;
+    this.$links.delete(n);
+    if (this[n] === child) delete this[n];
+    // Another child of the same name becomes the one found by that name.
+    for (const c of this.$children) {
+      if (c !== child && c.$name === n && !c.$removed) {
+        this.$link(c);
+        break;
+      }
+    }
   }
 
   $markRemoved() {
