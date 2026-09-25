@@ -47,6 +47,24 @@ same parameters, and the loader loads the game exactly as before.
   lego.com.
 - **Size.** The 600×400 stage is scaled to fit the window, letterboxed, as Flash's
   "show all" mode would.
+- **Saving.** Progress goes to the browser's localStorage. Flash wrote its save when
+  the player closed; this also writes it whenever the page is hidden, and every few
+  seconds if it changed, because a browser tab can be closed without warning.
+
+## Where JavaScript and ActionScript 2 differ
+
+The translated scripts run as JavaScript, so wherever the two languages disagree the
+runtime or the translator has to supply ActionScript's behaviour. The ones this game
+depends on, each found by comparing the port with the original:
+
+- `a <= b` and `a >= b` are compiled as `!(a > b)` and `!(a < b)`, which are true when
+  either side is NaN or undefined.
+- `null` becomes NaN in arithmetic, like `undefined`.
+- Strings convert to numbers by Flash's rules (`""` is NaN, `"010"` is octal), and
+  numbers print with 15 significant digits.
+- `Array.sortOn` is Flash's unstable quicksort; the pathfinder depends on its order.
+- A timeline variable hides a child clip of the same name.
+- `for..in` runs newest-first.
 
 ## Checking it against the original
 
@@ -59,6 +77,15 @@ saves the screenshots side by side. It needs Python with Playwright and Pillow, 
 reference/ruffle/      Ruffle's self-hosted web build (ruffle-*-web-selfhosted.zip)
 reference/swf/         loader.swf, game(original).swf renamed game.swf, dialogue.xml
 ```
+
+Ruffle is a very good reference, but not a perfect one: it does not show the colour
+matrix that turns the terrain white on the Christmas level, which the port does.
+
+For repeatable runs, open the page as `index.html?test&seed=1`: the clock stops, frames
+advance only when `__step(n)` is called, and random numbers follow the seed.
+`tools/verify/drive.py --test` scripts runs that way, and `tools/verify/smoke.py` plays
+a set of scenarios, including thousands of frames of random input on several levels,
+and fails on any script error.
 
 ## Credits
 
