@@ -1,0 +1,7 @@
+# Build scratch and the original-game reference harness stay local.
+/work/
+/reference/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
