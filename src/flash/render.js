@@ -201,6 +201,18 @@ export class Renderer {
     ctx.setTransform(m[0], m[1], m[2], m[3], m[4], m[5]);
   }
 
+  // An unrotated bitmap is drawn with its edges on whole pixels.  The map is a grid of
+  // 96x48 tiles (terrain, and the shroud over it); at 600x400 their edges fall exactly on
+  // pixels, as they did in Flash, but scaled to the window they would fall between pixels
+  // and their anti-aliased edges would let what is behind show through as grid lines.
+  snapped(m, w, h) {
+    if (m[1] !== 0 || m[2] !== 0 || !w || !h) return m;
+    const x0 = Math.round(m[4]), x1 = Math.round(m[4] + m[0] * w);
+    const y0 = Math.round(m[5]), y1 = Math.round(m[5] + m[3] * h);
+    if (x0 === x1 || y0 === y1) return m;
+    return [(x1 - x0) / w, 0, 0, (y1 - y0) / h, x0, y0];
+  }
+
   // Flash 8: at low and medium quality bitmaps are never smoothed; at high and best
   // they are smoothed where the fill asks for it.
   smoothing(flagged) {
@@ -370,7 +382,7 @@ export class Renderer {
     if (!img) return;
     let key = `${lib.movie}:${id}`;
     if (cm) [img, key] = this.colourMatrixed(key, img, cm);
-    this.setTransform(ctx, m);
+    this.setTransform(ctx, this.snapped(m, img.width, img.height));
     ctx.imageSmoothingEnabled = this.smoothing(smooth);
     if (cxIsIdentity(cx)) {
       ctx.globalAlpha = 1;

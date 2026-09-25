@@ -51,9 +51,11 @@ export class SoundSystem {
     return Math.max(0, v);
   }
 
+  // The owners' volumes changed (a Sound.setVolume): update what is playing.  Envelopes
+  // have their own gain node, so this never disturbs a fade in progress.  (A sound still
+  // being decoded has no gain node yet; it reads the volume when it starts.)
   refreshVolumes() {
-    // (A sound still being decoded has no gain node yet; it reads the volume when it starts.)
-    for (const p of this.playing) if (p.gain) p.gain.gain.value = this.volumeOf(p.owner) * p.envelope;
+    for (const p of this.playing) if (p.gain) p.gain.gain.value = this.volumeOf(p.owner);
   }
 
   // A StartSound tag: SOUNDINFO decides whether it stops, restarts, or loops.
@@ -70,7 +72,7 @@ export class SoundSystem {
     if (info.syncNoMultiple) {
       for (const p of this.playing) if (p.id === id && p.lib === lib) return null;
     }
-    const entry = { id, lib, owner, src: null, gain: null, envelope: 1, stopped: false };
+    const entry = { id, lib, owner, src: null, gain: null, stopped: false };
     this.playing.add(entry);
     this.buffer(lib, id).then((buf) => {
       if (!buf || entry.stopped) {
@@ -79,19 +81,21 @@ export class SoundSystem {
       }
       const src = this.ctx.createBufferSource();
       src.buffer = buf;
-      const gain = this.ctx.createGain();
+      // Two stages: the sound's own envelope, then its owners' volume.  (The in-game music
+      // fades in by envelope; muting and unmuting for the pause menu must not undo that.)
+      const env = this.ctx.createGain();
       if (info.envelope && info.envelope.length) {
         // Envelope points are in 44.1kHz samples with levels 0..32768 per channel;
         // both channels are averaged, which is all this game's sounds would need.
         const t0 = this.ctx.currentTime;
         const lvl = (e) => ((e[1] + e[2]) / 2) / 32768;
-        entry.envelope = lvl(info.envelope[0]);
-        gain.gain.setValueAtTime(this.volumeOf(owner) * entry.envelope, t0);
-        for (const e of info.envelope) gain.gain.linearRampToValueAtTime(this.volumeOf(owner) * lvl(e), t0 + e[0] / 44100);
-      } else {
-        gain.gain.value = this.volumeOf(owner);
+        env.gain.setValueAtTime(lvl(info.envelope[0]), t0);
+        for (const e of info.envelope) env.gain.linearRampToValueAtTime(lvl(e), t0 + e[0] / 44100);
       }
-      src.connect(gain);
+      const gain = this.ctx.createGain();
+      gain.gain.value = this.volumeOf(owner);
+      src.connect(env);
+      env.connect(gain);
       gain.connect(this.master);
       entry.src = src;
       entry.gain = gain;
