@@ -159,4 +159,8 @@ async function start() {
 start().catch((e) => {
   console.error(e);
   document.body.setAttribute('data-error', String(e && e.message || e));
+  const note = document.createElement('p');
+  note.className = 'failed';
+  note.textContent = 'CrystAlien Conflict could not load. Check your connection and reload the page.';
+  document.body.appendChild(note);
 });
