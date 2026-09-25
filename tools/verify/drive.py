@@ -8,13 +8,19 @@ Actions (stage coordinates; the viewport is the 600x400 stage at 1:1 unless --sc
     wait MS            let the game run
     frames N           wait until the player has run N more frames
     shot NAME          screenshot -> OUTDIR/NAME.png
-    click X Y          left click
+    click X Y          left click, held for two frames
     down X Y / up X Y  press / release
     move X Y           move the mouse
     key NAME           press and release a key (Playwright names: Space, Enter, a, ...)
     type TEXT          type text
     eval JS            evaluate JS in the page and print the result
     boot               click LOAD GAME and wait until the game's first frame has run
+    step N             (--test) advance exactly N frames
+
+With --test the page runs with ?test&seed=S: the clock is stopped and frames advance only
+on "step", so a run is repeatable.  "boot" then steps the loader to its button, clicks,
+waits for the game to download without advancing, steps to the game's first frame, and
+waits there for dialogue.xml.
     grid NAME A B ...  tile earlier screenshots A, B, ... two across into NAME.png
 """
 
@@ -58,6 +64,8 @@ def main():
     ap.add_argument('--scale', type=float, default=1.0)
     ap.add_argument('--page', default='index.html')
     ap.add_argument('--root', default=ROOT)
+    ap.add_argument('--test', action='store_true', help='stopped clock, seeded random numbers')
+    ap.add_argument('--seed', type=int, default=1)
     args = ap.parse_args()
     os.makedirs(args.out, exist_ok=True)
     httpd = serve(args.root, args.port)
@@ -69,7 +77,8 @@ def main():
         page.on('console', lambda m: log.append('[%s] %s' % (m.type, m.text)))
         page.on('pageerror', lambda e: log.append('[pageerror] %s' % e))
         page.on('requestfailed', lambda r: log.append('[requestfailed] %s %s' % (r.url, r.failure)))
-        page.goto('http://127.0.0.1:%d/%s' % (args.port, args.page))
+        query = '?test&seed=%d' % args.seed if args.test else ''
+        page.goto('http://127.0.0.1:%d/%s%s' % (args.port, args.page, query))
         t0 = time.time()
         for act in args.actions:
             op, _, rest = act.partition(' ')
@@ -85,8 +94,13 @@ def main():
                 x, y = [float(v) * s for v in rest.split()]
                 page.mouse.move(x, y)
                 if op == 'click':
+                    # The game polls the mouse once a frame, so a click has to span frames,
+                    # as a person's does (a click inside one frame is missed in Flash too).
                     page.mouse.down()
-                    page.wait_for_timeout(60)
+                    if args.test:
+                        page.evaluate('() => __step(2)')
+                    else:
+                        page.wait_for_timeout(90)
                     page.mouse.up()
                 elif op == 'down':
                     page.mouse.down()
@@ -96,10 +110,21 @@ def main():
                 page.keyboard.press(rest)
             elif op == 'type':
                 page.keyboard.type(rest, delay=60)
+            elif op == 'boot' and args.test:
+                page.wait_for_function('() => window.player && player.levels[0]', timeout=60000)
+                page.evaluate('() => { while (player.levels[0].$cur < 15) __step(1); }')
+                page.mouse.click(300 * s, 373 * s)
+                page.wait_for_function('() => player.levels[1] && !player.levels[1].$pending', timeout=180000)
+                page.evaluate('() => { let n = 0; while (player.levels[1].$cur !== 201 && n++ < 1000) __step(1); }')
+                # The game's first frame loads dialogue.xml and builds its Panel when it
+                # arrives; wait for that without advancing, so it lands on the same frame.
+                page.wait_for_function('() => player.levels[1].panel', timeout=60000)
             elif op == 'boot':
                 page.wait_for_function('() => window.player && player.levels[0] && player.levels[0].$cur >= 15', timeout=60000)
                 page.mouse.click(300 * s, 373 * s)
                 page.wait_for_function('() => player.levels[1] && !player.levels[1].$pending && player.levels[1].$cur === 201', timeout=180000)
+            elif op == 'step':
+                page.evaluate('(n) => __step(n)', int(rest))
             elif op == 'grid':
                 name, *shots = rest.split()
                 ims = [Image.open(os.path.join(args.out, n + '.png')) for n in shots]

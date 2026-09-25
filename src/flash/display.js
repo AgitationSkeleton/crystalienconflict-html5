@@ -733,8 +733,10 @@ export class MovieClip extends DisplayObject {
   }
 
   removeMovieClip() {
-    // AS2 only removes script-created clips (depth 0..1048575).
-    if (this.$removed || !this.$parent || this.$depth < 0 || this.$depth > 1048575) return;
+    // Only clips at non-negative depths can be removed -- in practice, those a script
+    // created (timeline clips sit at negative depths until swapDepths moves them).  The
+    // upper bound is Flash Player's, as Ruffle has it: 2130706416 less the depth offset.
+    if (this.$removed || !this.$parent || this.$depth < 0 || this.$depth >= 2130706416 + DEPTH_OFFSET) return;
     this.$parent.$remove(this);
   }
 

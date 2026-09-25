@@ -551,7 +551,7 @@
    {
       with (__scope)
       {
-      if(this.count <= 10)
+      if(!(this.count > 10))
       {
          this._alpha = this.count * 10;
       }
@@ -622,7 +622,7 @@
    {
       with (__scope)
       {
-      if(this.count <= 10)
+      if(!(this.count > 10))
       {
          this._alpha = this.count * 20;
       }
@@ -796,7 +796,7 @@
          {
             var _loc2_ = "";
             var _loc1_ = 7;
-            while(_loc1_ >= 0)
+            while(!(_loc1_ < 0))
             {
                _loc2_ += hex_chr?.charAt?.(num >> _loc1_ * 4 & 0x0F);
                _loc1_ = _loc1_ - 1;
@@ -969,11 +969,11 @@
       };
       min = function min(a, b)
       {
-         return a >= b ? b : a;
+         return !(a < b) ? b : a;
       };
       max = function max(a, b)
       {
-         return a <= b ? b : a;
+         return !(a > b) ? b : a;
       };
       sgn = function sgn(a)
       {
@@ -1024,11 +1024,11 @@
             {
                return upper;
             }
-            if(lower >= 1)
+            if(!(lower < 1))
             {
                lower = 0;
             }
-            if(upper <= 0)
+            if(!(upper > 0))
             {
                upper = 1;
             }
@@ -1040,7 +1040,7 @@
                upper = _loc5_;
             }
             this.pointer++;
-            if(this.pointer >= 100)
+            if(!(this.pointer < 100))
             {
                this.pointer = 0;
             }
@@ -1348,7 +1348,7 @@
             this.cacheEnd = end;
             this.cacheIgnoreObstructions = ignoreObstructions;
             this.cacheAllowApproximation = allowApproximation;
-            this.cacheRet = null;
+            this.cacheRet = undefined;
             this.endNode = new PathNode(end?.x, end?.y, {g:999999}, this, 0);
             this.startNode = new PathNode(start?.x, start?.y, {g:0}, this, 0);
             this.ignoreObstructions = ignoreObstructions;
@@ -1581,10 +1581,10 @@
             }
             var _loc3_ = 1;
             var _loc2_;
-            while(_loc3_ <= this.rows)
+            while(!(_loc3_ > this.rows))
             {
                _loc2_ = 1;
-               while(_loc2_ <= this.cols)
+               while(!(_loc2_ > this.cols))
                {
                   if(this.tiles?.[_loc2_]?.[_loc3_])
                   {
@@ -1616,17 +1616,17 @@
             this.MC = this.parent?.MC?.createEmptyMovieClip?.("shroud", 9999900);
             __as.set(this.MC, "cacheAsBitmap", true);
             var _loc2_ = 0;
-            while(_loc2_ <= this.cols + 1)
+            while(!(_loc2_ > this.cols + 1))
             {
                __as.set(this.tiles, _loc2_, new Array());
                _loc2_ = _loc2_ + 1;
             }
             var _loc3_ = 0;
             var _loc4_;
-            while(_loc3_ <= this.rows + 1)
+            while(!(_loc3_ > this.rows + 1))
             {
                _loc2_ = 0;
-               while(_loc2_ <= this.cols + 1)
+               while(!(_loc2_ > this.cols + 1))
                {
                   __as.set(this.tiles?.[_loc2_], _loc3_, false);
                   if(_loc2_ || _loc3_)
@@ -1646,10 +1646,10 @@
          {
             var _loc3_ = 0;
             var _loc2_;
-            while(_loc3_ <= this.rows + 1)
+            while(!(_loc3_ > this.rows + 1))
             {
                _loc2_ = 0;
-               while(_loc2_ <= this.cols + 1)
+               while(!(_loc2_ > this.cols + 1))
                {
                   if(_loc2_ || _loc3_)
                   {
@@ -1721,7 +1721,7 @@
          this.parent = parent;
          this.totalSquads = 9;
          var _loc5_ = 1;
-         while(_loc5_ <= this.totalSquads)
+         while(!(_loc5_ > this.totalSquads))
          {
             this["squad" + _loc5_] = new Array();
             _loc5_ = _loc5_ + 1;
@@ -1736,7 +1736,7 @@
             var _loc0_;
             _loc3_ = this["squad" + choice] = selection?.slice?.();
             var _loc2_ = 1;
-            while(_loc2_ <= this.totalSquads)
+            while(!(_loc2_ > this.totalSquads))
             {
                if(this["squad" + _loc2_] != _loc3_)
                {
@@ -2082,7 +2082,7 @@
             this.baits = new Array();
             this.useds = new Array();
             var _loc2_ = 0;
-            while(_loc2_ <= this.cols)
+            while(!(_loc2_ > this.cols))
             {
                __as.set(this.tiles, _loc2_, new Array());
                __as.set(this.baits, _loc2_, new Array());
@@ -2091,12 +2091,12 @@
             var _loc3_ = 0;
             var _loc4_;
             var _loc0_;
-            while(_loc3_ <= this.rows + 1)
+            while(!(_loc3_ > this.rows + 1))
             {
                _loc2_ = 0;
-               while(_loc2_ <= this.cols + 1)
+               while(!(_loc2_ > this.cols + 1))
                {
-                  if(_loc2_ && _loc3_ && _loc2_ <= this.cols && _loc3_ <= this.rows)
+                  if(_loc2_ && _loc3_ && !(_loc2_ > this.cols) && !(_loc3_ > this.rows))
                   {
                      _loc4_ = __as.set(this.tileHandles, "_" + _loc2_ + "_" + _loc3_, new Tile(this, Number?.(ascii2num?.(_loc5_?.shift?.())), (_loc2_ - 1) * this.tileSize, (_loc3_ - 1) * this.tileSize, _loc2_, _loc3_));
                   }
@@ -2186,10 +2186,10 @@
             var _loc4_ = 0;
             var _loc2_;
             var _loc3_;
-            while(_loc4_ <= this.rows + 1)
+            while(!(_loc4_ > this.rows + 1))
             {
                _loc2_ = 0;
-               while(_loc2_ <= this.cols + 1)
+               while(!(_loc2_ > this.cols + 1))
                {
                   _loc3_ = this.tileHandles?.["_" + _loc2_ + "_" + _loc4_];
                   if(!_loc3_?.bait)
@@ -2302,7 +2302,7 @@
                   {
                      _loc3_ = {x:_xmouse,y:_ymouse};
                      _loc2_?.MC?.globalToLocal?.(_loc3_);
-                     if(_loc3_?.x > 0 && _loc3_?.x <= this.mugshotWidth && _loc3_?.y > 0 && _loc3_?.y <= this.mugshotHeight)
+                     if(_loc3_?.x > 0 && !(_loc3_?.x > this.mugshotWidth) && _loc3_?.y > 0 && !(_loc3_?.y > this.mugshotHeight))
                      {
                         this.overOption = _loc2_;
                         if(_loc2_?.MC?._alpha == 100)
@@ -2314,7 +2314,7 @@
                         if(_loc2_?.progress)
                         {
                            _loc5_ = String?.(Math.ceil(100 * _loc2_?.progress / _loc2_?.constructionTime));
-                           if(_loc5_ >= 100)
+                           if(!(_loc5_ < 100))
                            {
                               _loc4_ = dialogue?.("int_construction_complete");
                            }
@@ -2349,7 +2349,7 @@
             if(this.scrollBuildingsDir)
             {
                this.scrollBuildingsPerc += this.scrollSpeed * this.scrollBuildingsDir;
-               if(Math.abs(this.scrollBuildingsPerc) >= 1)
+               if(!(Math.abs(this.scrollBuildingsPerc) < 1))
                {
                   this.scrollBuildings += this.scrollBuildingsDir;
                   this.scrollBuildingsDir = this.scrollBuildingsPerc = 0;
@@ -2358,7 +2358,7 @@
             if(this.scrollUnitsDir)
             {
                this.scrollUnitsPerc += this.scrollSpeed * this.scrollUnitsDir;
-               if(Math.abs(this.scrollUnitsPerc) >= 1)
+               if(!(Math.abs(this.scrollUnitsPerc) < 1))
                {
                   this.scrollUnits += this.scrollUnitsDir;
                   this.scrollUnitsDir = this.scrollUnitsPerc = 0;
@@ -2618,7 +2618,7 @@
                {
                   if(!item?.superweapon)
                   {
-                     this.parent?.units?.push?.(new Unit(this.parent, item?.type, null, null, 0.125 * random?.(8), this.parent?.parent?.team));
+                     this.parent?.units?.push?.(new Unit(this.parent, item?.type, undefined, undefined, 0.125 * random?.(8), this.parent?.parent?.team));
                      this.cancel?.(item);
                      this.parent?.parent?.sfx?.play?.("INT_constructioncomplete_unit");
                   }
@@ -3145,7 +3145,7 @@
          this.dockPos = this.parent?.parent?.arena?.translatePos?.(this.dockX, this.dockY);
          this.checkMax = function (total)
          {
-            this.disabled = total >= this.max;
+            this.disabled = !(total < this.max);
          };
       };
       }
@@ -3257,7 +3257,7 @@
                   {
                      this.repairing = true;
                      _loc2_ = 20 * Math.round(1 / this.stats?.maxHealth * this.stats?.cost * 0.5);
-                     if(this.friend && this.parent?.cash >= _loc2_ || !this.friend && this.parent?.cashOppo >= _loc2_)
+                     if(this.friend && !(this.parent?.cash < _loc2_) || !this.friend && !(this.parent?.cashOppo < _loc2_))
                      {
                         this.hilite = true;
                         this.health = min?.(this.stats?.maxHealth, this.health += 20);
@@ -3302,7 +3302,7 @@
                if(!(this.count % 4) && this.blink && (this.friend && !this.parent?.powerOff || !this.friend && !this.parent?.powerOffOppo))
                {
                   this.angle += sgn?.(Math.sin(this.count / 100)) * 0.0625;
-                  if(this.angle >= 1)
+                  if(!(this.angle < 1))
                   {
                      this.angle -= 1;
                   }
@@ -3360,12 +3360,12 @@
                this.parent?.parent?.sfx?.play?.(_loc3_?.[random?.(6) + 1]);
             }
             this.healthPerc = Math.ceil(this.health / this.stats?.maxHealth * 100);
-            if(this.healthPerc <= 0)
+            if(!(this.healthPerc > 0))
             {
                this.destroy?.();
             }
             var _loc2_;
-            if(this.healthPerc <= 25)
+            if(!(this.healthPerc > 25))
             {
                if(!this.stats?.weapon || this.stats?.isHQ)
                {
@@ -3981,7 +3981,7 @@
          }
          this.checkMax = function (total)
          {
-            this.disabled = total >= this.max;
+            this.disabled = !(total < this.max);
          };
       };
       }
@@ -4024,7 +4024,7 @@
          this.path = new Array();
          var _loc5_ = 2;
          var _loc10_ = 1;
-         while(_loc10_ <= this.stats?.speed)
+         while(!(_loc10_ > this.stats?.speed))
          {
             _loc5_ *= 1.2;
             _loc10_ = _loc10_ + 1;
@@ -4145,7 +4145,7 @@
                return undefined;
             }
             this.atHome = false;
-            if(this.path?.length <= 1)
+            if(!(this.path?.length > 1))
             {
                this.hesitate = random?.(10);
                if(this.stats?.miner && this.headingHome || this.stats?.home?.stats?.dockPos?.x == this.parent?.tilePos?.x && this.stats?.home?.stats?.dockPos?.y == this.parent?.tilePos?.y)
@@ -4177,7 +4177,7 @@
                return undefined;
             }
             this.midMove?.();
-            if(this.progress >= 99.9999999999)
+            if(!(this.progress < 99.9999999999))
             {
                this.endMove?.();
             }
@@ -4266,7 +4266,7 @@
                this.bank = this.parent?.parent?.walkFrames?.[this.walk];
             }
             var _loc2_ = this.currentAngle + min?.(1, this.progress / 100 * (20 / this.stats?.speed)) * _loc3_;
-            while(_loc2_ >= 1)
+            while(!(_loc2_ < 1))
             {
                _loc2_ = _loc2_ - 1;
             }
@@ -4314,7 +4314,7 @@
                   _loc4_ = __as.set(this.arena?.baits?.[this.currentX], this.currentY, limit?.(this.arena?.baits?.[this.currentX]?.[this.currentY] - _loc2_, 1, 100));
                   __as.op(this.parent, "cargo", "+", _loc2_);
                   this.parent?.makeNoise?.(this.parent?.type + "_action_" + (random?.(3) + 1));
-                  if(this.parent?.cargo >= this.stats?.maxCargo)
+                  if(!(this.parent?.cargo < this.stats?.maxCargo))
                   {
                      __as.set(this.parent?.MCsprite?.unit?.sparks, "_visible", false);
                      this.parent?.makeNoise?.(this.parent?.type + "_comply");
@@ -4328,7 +4328,7 @@
                   }
                   __as.set(this.parent?.MCsprite?.unit?.sparks, "_visible", true);
                }
-               this.voyage?.(null, null, false, true);
+               this.voyage?.(undefined, undefined, false, true);
                return undefined;
             }
          };
@@ -4468,7 +4468,7 @@
          };
          if(this.parent?.stats?.miner)
          {
-            this.voyage?.(null, null, false, this.parent?.stats?.bait);
+            this.voyage?.(undefined, undefined, false, this.parent?.stats?.bait);
          }
       };
       }
@@ -4700,7 +4700,7 @@
             }
             if(x2 == undefined)
             {
-               return distance?.(this.posX, this.posY - this.stats?.altitudeT2 - this.stats?.size2, x1, y1) >= this.stats?.size ? false : this;
+               return !(distance?.(this.posX, this.posY - this.stats?.altitudeT2 - this.stats?.size2, x1, y1) < this.stats?.size) ? false : this;
             }
             return !(this.posX > x1 && this.posX < x2 && this.posY - this.stats?.altitudeT2 > y1 && this.posY - this.stats?.altitudeT2 < y2) ? false : this;
          };
@@ -4737,12 +4737,12 @@
                }
             }
             this.healthPerc = Math.ceil(this.health / this.stats?.maxHealth * 100);
-            if(this.healthPerc <= 0)
+            if(!(this.healthPerc > 0))
             {
                this.destroy?.();
             }
             var _loc2_;
-            if(this.healthPerc <= 25)
+            if(!(this.healthPerc > 25))
             {
                if(!this.MCsprite?.unit?.smoke && this.stats?.mechanical)
                {
@@ -4798,7 +4798,7 @@
          {
             if(!carrier)
             {
-               if(this.target?.stats?.contents?.length >= this.target?.stats?.capacity)
+               if(!(this.target?.stats?.contents?.length < this.target?.stats?.capacity))
                {
                   this.target = false;
                   return undefined;
@@ -4871,7 +4871,7 @@
                _loc3_ = true;
                if(!this.friend)
                {
-                  if(this.parent?.cashOppo >= this.stats?.cost)
+                  if(!(this.parent?.cashOppo < this.stats?.cost))
                   {
                      __as.op(this.parent, "cashOppo", "-", this.stats?.cost);
                   }
@@ -4882,7 +4882,7 @@
                }
                if(_loc3_)
                {
-                  this.parent?.units?.push?.(new Unit(this.parent, this.type, null, null, null, null, null, null, null, true));
+                  this.parent?.units?.push?.(new Unit(this.parent, this.type, undefined, undefined, undefined, undefined, undefined, undefined, undefined, true));
                }
             }
          };
@@ -4940,7 +4940,7 @@
                      this.freeInside = this.freeInside?.substr?.(0, -5);
                      _loc5_ = this.parent?.parent?.oppo;
                   }
-                  this.parent?.units?.push?.(new Unit(this.parent, this.freeInside, _loc4_?.x, _loc4_?.y, null, _loc5_));
+                  this.parent?.units?.push?.(new Unit(this.parent, this.freeInside, _loc4_?.x, _loc4_?.y, undefined, _loc5_));
                }
             }
          };
@@ -4966,7 +4966,7 @@
          this.message = message?.toUpperCase?.();
          this.conditionType = conditionType;
          this.lifespan = lifespan;
-         if(this.lifespan != undefined && this.lifespan <= 40)
+         if(this.lifespan != undefined && !(this.lifespan > 40))
          {
             this.lifespan = 41;
          }
@@ -5099,7 +5099,7 @@
             }
             if(this.conditionType == "message")
             {
-               if(this.lifespan == undefined || this.lifespan >= 40)
+               if(this.lifespan == undefined || !(this.lifespan < 40))
                {
                   this.parent?.parent?.hud?.showMessage?.(this.message);
                }
@@ -5130,14 +5130,14 @@
             if(this.level == 1)
             {
                this.buildings?.push?.(new Building(this, "BA_good", 2, 7));
-               this.units?.push?.(_loc2_ = new Unit(this, "UD_good", null, null, 0.5));
-               this.indicators?.push?.(new Indicator(this, _loc2_, null, dialogue?.("int_level1_ind1"), "selected"));
+               this.units?.push?.(_loc2_ = new Unit(this, "UD_good", undefined, undefined, 0.5));
+               this.indicators?.push?.(new Indicator(this, _loc2_, undefined, dialogue?.("int_level1_ind1"), "selected"));
                this.indicators?.push?.(new Indicator(this, _loc2_, this.arena?.tileHandles?._4_7, dialogue?.("int_level1_ind2"), "voyage"));
                this.indicators?.push?.(new Indicator(this, _loc2_, this.arena?.tileHandles?._6_6, dialogue?.("int_level1_ind3"), "voyage"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level1_ind4"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level1_ind5"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level1_ind6"), "message", 120));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level1_ind7"), "message"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level1_ind4"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level1_ind5"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level1_ind6"), "message", 120));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level1_ind7"), "message"));
                this.cash = 0;
                this.training = true;
                this.jukebox = 1;
@@ -5151,14 +5151,14 @@
                this.units?.push?.(_loc3_ = new Unit(this, "UA_good", 4, 9, 0.5));
                this.units?.push?.(_loc4_ = new Unit(this, "UA_good", 4, 9, 0.125));
                this.units?.push?.(_loc5_ = new Unit(this, "UA_good", 3, 9, 0.375));
-               this.units?.push?.(new Unit(this, "UA_evil", 15, 1, 0.75, null, null, "roam", 10));
-               this.units?.push?.(new Unit(this, "UA_evil", 13, 15, 0.75, null, null, "roam", 20));
-               this.units?.push?.(new Unit(this, "UA_evil", 15, 3, 0.75, null, null, "still"));
-               this.indicators?.push?.(new Indicator(this, new Array(_loc2_, _loc3_, _loc4_, _loc5_), null, dialogue?.("int_level2_ind1"), "selected"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level2_ind2"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level2_ind3"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level2_ind4"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level2_ind5"), "message"));
+               this.units?.push?.(new Unit(this, "UA_evil", 15, 1, 0.75, undefined, undefined, "roam", 10));
+               this.units?.push?.(new Unit(this, "UA_evil", 13, 15, 0.75, undefined, undefined, "roam", 20));
+               this.units?.push?.(new Unit(this, "UA_evil", 15, 3, 0.75, undefined, undefined, "still"));
+               this.indicators?.push?.(new Indicator(this, new Array(_loc2_, _loc3_, _loc4_, _loc5_), undefined, dialogue?.("int_level2_ind1"), "selected"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level2_ind2"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level2_ind3"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level2_ind4"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level2_ind5"), "message"));
                this.cash = 2000;
                this.training = true;
                this.jukebox = 2;
@@ -5166,24 +5166,24 @@
             if(this.level == 3)
             {
                this.buildings?.push?.(new Building(this, "BA_good", 3, 13));
-               this.units?.push?.(_loc2_ = new Unit(this, "UD_good", 8, 11, 0.5, null, 0.25));
-               this.units?.push?.(new Unit(this, "UE_evil", 16, 15, 0.75, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UE_evil", 17, 16, 0.75, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UE_evil", 18, 17, 0.75, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_evil", 15, 15, 0.75, null, null, "roam", 10));
-               this.units?.push?.(new Unit(this, "UA_evil", 15, 15, 0.75, null, null, "roam", 10));
-               this.units?.push?.(new Unit(this, "UA_evil", 15, 15, 0.75, null, null, "roam", 10));
-               this.units?.push?.(new Unit(this, "UA_evil", 15, 15, 0.75, null, null, "roam", 10));
-               this.units?.push?.(new Unit(this, "UA_evil", 15, 15, 0.75, null, null, "roam", 10));
-               this.units?.push?.(new Unit(this, "UA_evil", 15, 15, 0.75, null, null, "roam", 10));
-               this.indicators?.push?.(new Indicator(this, _loc2_, null, dialogue?.("int_level3_ind1"), "selected"));
+               this.units?.push?.(_loc2_ = new Unit(this, "UD_good", 8, 11, 0.5, undefined, 0.25));
+               this.units?.push?.(new Unit(this, "UE_evil", 16, 15, 0.75, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UE_evil", 17, 16, 0.75, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UE_evil", 18, 17, 0.75, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_evil", 15, 15, 0.75, undefined, undefined, "roam", 10));
+               this.units?.push?.(new Unit(this, "UA_evil", 15, 15, 0.75, undefined, undefined, "roam", 10));
+               this.units?.push?.(new Unit(this, "UA_evil", 15, 15, 0.75, undefined, undefined, "roam", 10));
+               this.units?.push?.(new Unit(this, "UA_evil", 15, 15, 0.75, undefined, undefined, "roam", 10));
+               this.units?.push?.(new Unit(this, "UA_evil", 15, 15, 0.75, undefined, undefined, "roam", 10));
+               this.units?.push?.(new Unit(this, "UA_evil", 15, 15, 0.75, undefined, undefined, "roam", 10));
+               this.indicators?.push?.(new Indicator(this, _loc2_, undefined, dialogue?.("int_level3_ind1"), "selected"));
                this.indicators?.push?.(new Indicator(this, _loc2_, this.arena?.tileHandles?._4_14, dialogue?.("int_level3_ind2"), "voyage"));
-               this.indicators?.push?.(new Indicator(this, "BB_good", null, dialogue?.("int_level3_ind3"), "construction"));
-               this.indicators?.push?.(new Indicator(this, "BC_good", null, dialogue?.("int_level3_ind4"), "construction"));
-               this.indicators?.push?.(new Indicator(this, "UB_good", null, dialogue?.("int_level3_ind5"), "construction"));
-               this.indicators?.push?.(new Indicator(this, "find:UB_good", null, dialogue?.("int_level3_ind6"), "selected"));
+               this.indicators?.push?.(new Indicator(this, "BB_good", undefined, dialogue?.("int_level3_ind3"), "construction"));
+               this.indicators?.push?.(new Indicator(this, "BC_good", undefined, dialogue?.("int_level3_ind4"), "construction"));
+               this.indicators?.push?.(new Indicator(this, "UB_good", undefined, dialogue?.("int_level3_ind5"), "construction"));
+               this.indicators?.push?.(new Indicator(this, "find:UB_good", undefined, dialogue?.("int_level3_ind6"), "selected"));
                this.indicators?.push?.(new Indicator(this, "find:UB_good", _loc2_, dialogue?.("int_level3_ind7"), "voyage"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level3_ind8"), "message"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level3_ind8"), "message"));
                this.cash = 4000;
                this.training = true;
                this.jukebox = 3;
@@ -5197,27 +5197,27 @@
                this.units?.push?.(new Unit(this, "UD_good", 10, 4, 0.5));
                this.units?.push?.(_loc2_ = new Unit(this, "UE_good", 27, 12, 0.25));
                this.units?.push?.(_loc3_ = new Unit(this, "UI_evil", 28, 12, 0.75));
-               this.units?.push?.(new Unit(this, "UE_evil", 30, 12, 0.75, null, 0.75, "still"));
-               this.units?.push?.(new Unit(this, "UA_evil", 27, 7, 0.5, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UE_evil", 23, 14, 0.25, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_evil", 23, 15, 0.25, null, null, "still", 600));
-               this.units?.push?.(new Unit(this, "UA_evil", 23, 15, 0.25, null, null, "still", 600));
-               this.units?.push?.(new Unit(this, "UA_evil", 23, 15, 0.25, null, null, "still", 1000));
-               this.units?.push?.(new Unit(this, "UA_evil", 23, 15, 0.25, null, null, "still", 2000));
-               this.units?.push?.(new Unit(this, "UA_evil", 23, 15, 0.25, null, null, "still", 2000));
-               this.units?.push?.(new Unit(this, "UE_evil", 23, 6, 0.75, null, 0.75, "still"));
-               this.units?.push?.(new Unit(this, "UE_evil", 24, 6, 0.75, null, 0.75, "still"));
-               this.units?.push?.(new Unit(this, "UA_evil", 25, 1, 0.25, null, null, "still", 600));
-               this.units?.push?.(new Unit(this, "UA_evil", 25, 1, 0.25, null, null, "still", 600));
-               this.units?.push?.(new Unit(this, "UA_evil", 25, 1, 0.25, null, null, "still", 1000));
-               this.units?.push?.(new Unit(this, "UA_evil", 25, 1, 0.25, null, null, "still", 2000));
-               this.units?.push?.(new Unit(this, "UA_evil", 25, 1, 0.25, null, null, "still", 2000));
-               this.units?.push?.(new Unit(this, "UE_evil", 30, 1, 0.25, null, null, "still", 2500));
-               this.units?.push?.(new Unit(this, "UE_evil", 30, 2, 0.25, null, null, "still", 2600));
-               this.indicators?.push?.(new Indicator(this, _loc2_, null, dialogue?.("int_level4_ind1"), "selected"));
+               this.units?.push?.(new Unit(this, "UE_evil", 30, 12, 0.75, undefined, 0.75, "still"));
+               this.units?.push?.(new Unit(this, "UA_evil", 27, 7, 0.5, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UE_evil", 23, 14, 0.25, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_evil", 23, 15, 0.25, undefined, undefined, "still", 600));
+               this.units?.push?.(new Unit(this, "UA_evil", 23, 15, 0.25, undefined, undefined, "still", 600));
+               this.units?.push?.(new Unit(this, "UA_evil", 23, 15, 0.25, undefined, undefined, "still", 1000));
+               this.units?.push?.(new Unit(this, "UA_evil", 23, 15, 0.25, undefined, undefined, "still", 2000));
+               this.units?.push?.(new Unit(this, "UA_evil", 23, 15, 0.25, undefined, undefined, "still", 2000));
+               this.units?.push?.(new Unit(this, "UE_evil", 23, 6, 0.75, undefined, 0.75, "still"));
+               this.units?.push?.(new Unit(this, "UE_evil", 24, 6, 0.75, undefined, 0.75, "still"));
+               this.units?.push?.(new Unit(this, "UA_evil", 25, 1, 0.25, undefined, undefined, "still", 600));
+               this.units?.push?.(new Unit(this, "UA_evil", 25, 1, 0.25, undefined, undefined, "still", 600));
+               this.units?.push?.(new Unit(this, "UA_evil", 25, 1, 0.25, undefined, undefined, "still", 1000));
+               this.units?.push?.(new Unit(this, "UA_evil", 25, 1, 0.25, undefined, undefined, "still", 2000));
+               this.units?.push?.(new Unit(this, "UA_evil", 25, 1, 0.25, undefined, undefined, "still", 2000));
+               this.units?.push?.(new Unit(this, "UE_evil", 30, 1, 0.25, undefined, undefined, "still", 2500));
+               this.units?.push?.(new Unit(this, "UE_evil", 30, 2, 0.25, undefined, undefined, "still", 2600));
+               this.indicators?.push?.(new Indicator(this, _loc2_, undefined, dialogue?.("int_level4_ind1"), "selected"));
                this.indicators?.push?.(new Indicator(this, _loc2_, _loc3_, dialogue?.("int_level4_ind2"), "voyage"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level4_ind3"), "message", 60));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level4_ind4"), "message", 200));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level4_ind3"), "message", 60));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level4_ind4"), "message", 200));
                this.arena?.shroud?.reveal?.(6, 1, 4);
                this.arena?.shroud?.reveal?.(3, 8, 4);
                this.arena?.shroud?.reveal?.(3, 12, 4);
@@ -5234,17 +5234,17 @@
             if(this.level == 5)
             {
                this.buildings?.push?.(new Building(this, "BA_" + this.parent?.team, 2, 4));
-               this.units?.push?.(new Unit(this, "UD_good", null, null, 0.5, null));
+               this.units?.push?.(new Unit(this, "UD_good", undefined, undefined, 0.5, undefined));
                this.units?.push?.(new Unit(this, "UE_good", 4, 3, 0.5));
                this.units?.push?.(new Unit(this, "UA_good", 4, 5, 0.25));
                this.units?.push?.(new Unit(this, "UA_good", 4, 5, 0.5));
                this.units?.push?.(new Unit(this, "UA_good", 4, 5, 0.75));
-               this.units?.push?.(new Unit(this, "UF_evil", 15, 5, 0.75, null, null, "roam", 10));
-               this.units?.push?.(new Unit(this, "UF_evil", 15, 4, 0.5, null, null, "still", 1000));
-               this.units?.push?.(new Unit(this, "UF_evil", 19, 9, 0.75, null, null, "still", 2000));
-               this.units?.push?.(new Unit(this, "UA_evil", 18, 19, 0.75, null, null, "roam", 2));
-               this.units?.push?.(new Unit(this, "UA_evil", 18, 20, 0.75, null, null, "roam", 2));
-               this.units?.push?.(new Unit(this, "UF_evil", 19, 19, 0.75, null, null, "still"));
+               this.units?.push?.(new Unit(this, "UF_evil", 15, 5, 0.75, undefined, undefined, "roam", 10));
+               this.units?.push?.(new Unit(this, "UF_evil", 15, 4, 0.5, undefined, undefined, "still", 1000));
+               this.units?.push?.(new Unit(this, "UF_evil", 19, 9, 0.75, undefined, undefined, "still", 2000));
+               this.units?.push?.(new Unit(this, "UA_evil", 18, 19, 0.75, undefined, undefined, "roam", 2));
+               this.units?.push?.(new Unit(this, "UA_evil", 18, 20, 0.75, undefined, undefined, "roam", 2));
+               this.units?.push?.(new Unit(this, "UF_evil", 19, 19, 0.75, undefined, undefined, "still"));
                this.arena?.shroud?.reveal?.(5, 10, 4);
                this.arena?.shroud?.reveal?.(19, 19, 4);
                this.cash = 8000;
@@ -5255,22 +5255,22 @@
                this.buildings?.push?.(_loc3_ = new Building(this, "BA_good", 4, 15));
                this.buildings?.push?.(new Building(this, "BB_good", 1, 15));
                this.buildings?.push?.(new Building(this, "BG_good", 1, 13));
-               this.units?.push?.(new Unit(this, "UD_good", null, null, 0.5, null));
-               this.units?.push?.(new Unit(this, "UC_good", 6, 14, 0.5, null));
-               this.units?.push?.(new Unit(this, "UC_good", 6, 15, 0.5, null));
-               this.units?.push?.(new Unit(this, "UC_good", 6, 16, 0.5, null));
-               this.units?.push?.(new Unit(this, "UC_good", 6, 15, 0.5, null));
-               this.units?.push?.(new Unit(this, "UC_good", 6, 16, 0.5, null));
+               this.units?.push?.(new Unit(this, "UD_good", undefined, undefined, 0.5, undefined));
+               this.units?.push?.(new Unit(this, "UC_good", 6, 14, 0.5, undefined));
+               this.units?.push?.(new Unit(this, "UC_good", 6, 15, 0.5, undefined));
+               this.units?.push?.(new Unit(this, "UC_good", 6, 16, 0.5, undefined));
+               this.units?.push?.(new Unit(this, "UC_good", 6, 15, 0.5, undefined));
+               this.units?.push?.(new Unit(this, "UC_good", 6, 16, 0.5, undefined));
                this.buildings?.push?.(_loc2_ = new Building(this, "BC_evil", 15, 5));
                this.buildings?.push?.(new Building(this, "BD_evil", 11, 7));
                this.buildings?.push?.(new Building(this, "BD_evil", 14, 12));
                this.buildings?.push?.(new Building(this, "BB_evil", 15, 2));
-               this.units?.push?.(new Unit(this, "UC_evil", null, null, null, null, null, "still", 30, true));
-               this.units?.push?.(new Unit(this, "UC_evil", null, null, null, null, null, "still", 35, true));
-               this.units?.push?.(new Unit(this, "UC_evil", null, null, null, null, null, "still", 40, true));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level6_ind1"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, _loc3_, null, null, "focus"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level6_ind2"), "message", 80));
+               this.units?.push?.(new Unit(this, "UC_evil", undefined, undefined, undefined, undefined, undefined, "still", 30, true));
+               this.units?.push?.(new Unit(this, "UC_evil", undefined, undefined, undefined, undefined, undefined, "still", 35, true));
+               this.units?.push?.(new Unit(this, "UC_evil", undefined, undefined, undefined, undefined, undefined, "still", 40, true));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level6_ind1"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, _loc3_, undefined, undefined, "focus"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level6_ind2"), "message", 80));
                this.arena?.shroud?.reveal?.(16, 5, 4);
                __as.set(this.camera, "focus", _loc2_);
                this.cash = 4000;
@@ -5280,10 +5280,10 @@
             if(this.level == 7)
             {
                this.buildings?.push?.(new Building(this, "BA_good", 5, 27));
-               this.units?.push?.(new Unit(this, "UD_good", 13, 26, 0.5, null));
-               this.units?.push?.(new Unit(this, "UF_good", 6, 24, 0.0625, null));
-               this.units?.push?.(new Unit(this, "UF_good", 7, 24, 0.125, null));
-               this.units?.push?.(new Unit(this, "UF_good", 7, 25, 0.1875, null));
+               this.units?.push?.(new Unit(this, "UD_good", 13, 26, 0.5, undefined));
+               this.units?.push?.(new Unit(this, "UF_good", 6, 24, 0.0625, undefined));
+               this.units?.push?.(new Unit(this, "UF_good", 7, 24, 0.125, undefined));
+               this.units?.push?.(new Unit(this, "UF_good", 7, 25, 0.1875, undefined));
                this.units?.push?.(new Unit(this, "UA_good", 4, 24));
                this.units?.push?.(new Unit(this, "UA_good", 4, 24));
                this.units?.push?.(new Unit(this, "UA_good", 7, 27));
@@ -5294,17 +5294,17 @@
                this.buildings?.push?.(new Building(this, "BB_evil", 21, 3));
                this.buildings?.push?.(new Building(this, "BC_evil", 19, 7));
                this.buildings?.push?.(new Building(this, "BB_evil", 21, 7));
-               this.units?.push?.(new Unit(this, "UA_evil", 19, 6, null, null, null, "roam", 6, true));
-               this.units?.push?.(new Unit(this, "UA_evil", 19, 6, null, null, null, "roam", 6, true));
-               this.units?.push?.(new Unit(this, "UA_evil", 19, 6, null, null, null, "roam", 6, true));
-               this.units?.push?.(new Unit(this, "UA_evil", 19, 6, null, null, null, "roam", 6, true));
-               this.units?.push?.(new Unit(this, "UA_evil", 19, 6, null, null, null, "roam", 6, true));
-               this.units?.push?.(new Unit(this, "UC_evil", null, null, null, null, null, "still", 1000, true));
-               this.units?.push?.(new Unit(this, "UC_evil", null, null, null, null, null, "still", 1000, true));
-               this.units?.push?.(new Unit(this, "UC_evil", null, null, null, null, null, "still", 1000, true));
-               this.units?.push?.(new Unit(this, "UE_evil", 5, 3, 0.5, null, null, "still", null, true));
-               this.units?.push?.(new Unit(this, "UE_evil", 21, 24, 0.75, null, null, "still", null, true));
-               this.units?.push?.(new Unit(this, "UF_evil", 17, 11, 0.625, null, null, "still", null, true));
+               this.units?.push?.(new Unit(this, "UA_evil", 19, 6, undefined, undefined, undefined, "roam", 6, true));
+               this.units?.push?.(new Unit(this, "UA_evil", 19, 6, undefined, undefined, undefined, "roam", 6, true));
+               this.units?.push?.(new Unit(this, "UA_evil", 19, 6, undefined, undefined, undefined, "roam", 6, true));
+               this.units?.push?.(new Unit(this, "UA_evil", 19, 6, undefined, undefined, undefined, "roam", 6, true));
+               this.units?.push?.(new Unit(this, "UA_evil", 19, 6, undefined, undefined, undefined, "roam", 6, true));
+               this.units?.push?.(new Unit(this, "UC_evil", undefined, undefined, undefined, undefined, undefined, "still", 1000, true));
+               this.units?.push?.(new Unit(this, "UC_evil", undefined, undefined, undefined, undefined, undefined, "still", 1000, true));
+               this.units?.push?.(new Unit(this, "UC_evil", undefined, undefined, undefined, undefined, undefined, "still", 1000, true));
+               this.units?.push?.(new Unit(this, "UE_evil", 5, 3, 0.5, undefined, undefined, "still", undefined, true));
+               this.units?.push?.(new Unit(this, "UE_evil", 21, 24, 0.75, undefined, undefined, "still", undefined, true));
+               this.units?.push?.(new Unit(this, "UF_evil", 17, 11, 0.625, undefined, undefined, "still", undefined, true));
                this.units?.push?.(new Unit(this, "UI_evil", 4, 7));
                this.units?.push?.(new Unit(this, "UI_evil", 11, 9));
                this.units?.push?.(new Unit(this, "UI_evil", 21, 17));
@@ -5316,35 +5316,35 @@
             {
                this.buildings?.push?.(new Building(this, "BA_good", 2, 25, "evil", 0.25));
                this.buildings?.push?.(new Building(this, "BC_good", 13, 14, "evil", 0.25));
-               this.units?.push?.(_loc2_ = new Unit(this, "UA_good", 13, 6, 0.5, null));
-               this.units?.push?.(new Unit(this, "UA_good", 12, 5, 0.5, null));
-               this.units?.push?.(new Unit(this, "UA_good", 14, 5, 0.5, null));
-               this.units?.push?.(new Unit(this, "UB_good", 13, 4, 0.5, null));
-               this.units?.push?.(new Unit(this, "UB_good", 13, 4, 0.5, null));
+               this.units?.push?.(_loc2_ = new Unit(this, "UA_good", 13, 6, 0.5, undefined));
+               this.units?.push?.(new Unit(this, "UA_good", 12, 5, 0.5, undefined));
+               this.units?.push?.(new Unit(this, "UA_good", 14, 5, 0.5, undefined));
+               this.units?.push?.(new Unit(this, "UB_good", 13, 4, 0.5, undefined));
+               this.units?.push?.(new Unit(this, "UB_good", 13, 4, 0.5, undefined));
                this.units?.push?.(new Unit(this, "UH_good", 14, 29, 0.625));
-               this.units?.push?.(new Unit(this, "UI_good", 10, 7, 0.5, null, null, null, "UE_good"));
-               this.units?.push?.(new Unit(this, "UI_good", 8, 3, 0.5, null, null, null, "UF_good"));
-               this.units?.push?.(new Unit(this, "UI_good", 8, 29, 0.25, null, null, null, "UC_good"));
+               this.units?.push?.(new Unit(this, "UI_good", 10, 7, 0.5, undefined, undefined, undefined, "UE_good"));
+               this.units?.push?.(new Unit(this, "UI_good", 8, 3, 0.5, undefined, undefined, undefined, "UF_good"));
+               this.units?.push?.(new Unit(this, "UI_good", 8, 29, 0.25, undefined, undefined, undefined, "UC_good"));
                this.buildings?.push?.(new Building(this, "BD_evil", 4, 7));
                this.buildings?.push?.(new Building(this, "BD_evil", 6, 15));
                this.buildings?.push?.(new Building(this, "BD_evil", 8, 24));
                this.buildings?.push?.(new Building(this, "BB_evil", 4, 25, "evil"));
                this.buildings?.push?.(new Building(this, "BB_evil", 4, 23, "evil"));
-               this.units?.push?.(new Unit(this, "UA_evil", 12, 15, null, null, null, "roam", 4));
-               this.units?.push?.(new Unit(this, "UA_evil", 12, 15, null, null, null, "roam", 4));
-               this.units?.push?.(new Unit(this, "UF_evil", 2, 17, 0.125, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UE_evil", 3, 15, 0.125, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UE_evil", 10, 26, 0, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UE_evil", 2, 11, 0.375, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_evil", 3, 25, null, null, null, "roam", 6));
-               this.units?.push?.(new Unit(this, "UA_evil", 3, 25, null, null, null, "roam", 6));
+               this.units?.push?.(new Unit(this, "UA_evil", 12, 15, undefined, undefined, undefined, "roam", 4));
+               this.units?.push?.(new Unit(this, "UA_evil", 12, 15, undefined, undefined, undefined, "roam", 4));
+               this.units?.push?.(new Unit(this, "UF_evil", 2, 17, 0.125, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UE_evil", 3, 15, 0.125, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UE_evil", 10, 26, 0, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UE_evil", 2, 11, 0.375, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_evil", 3, 25, undefined, undefined, undefined, "roam", 6));
+               this.units?.push?.(new Unit(this, "UA_evil", 3, 25, undefined, undefined, undefined, "roam", 6));
                this.units?.push?.(new Unit(this, "UI_evil", 15, 15));
                this.units?.push?.(new Unit(this, "UI_evil", 14, 16));
                this.units?.push?.(new Unit(this, "UI_evil", 6, 27));
                this.units?.push?.(new Unit(this, "UI_evil", 1, 17));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level8_ind1"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level8_ind2"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level8_ind3"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level8_ind1"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level8_ind2"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level8_ind3"), "message", 80));
                __as.set(this.camera, "focus", _loc2_);
                this.cash = 0;
                this.jukebox = 4;
@@ -5353,14 +5353,14 @@
             {
                this.buildings?.push?.(new Building(this, "BG_good", 10, 26));
                this.buildings?.push?.(new Building(this, "BB_good", 11, 26));
-               this.units?.push?.(_loc3_ = new Unit(this, "UB_good", 9, 26, 0.5, null));
-               this.units?.push?.(new Unit(this, "UH_good", 7, 26, 0.625, null));
-               this.units?.push?.(new Unit(this, "UI_good", 3, 2, 0.5, null, null, null, "UF_good"));
-               this.units?.push?.(new Unit(this, "UI_good", 4, 16, 0.5, null, null, null, "UC_good"));
-               this.units?.push?.(new Unit(this, "UI_good", 12, 17, 0.5, null, null, null, "UC_good"));
-               this.units?.push?.(new Unit(this, "UI_good", 14, 27, 0.5, null, null, null, "UC_good"));
-               this.units?.push?.(new Unit(this, "UI_good", 14, 12, 0.5, null, null, null, "UC_good"));
-               this.units?.push?.(new Unit(this, "UI_good", 7, 16, 0.5, null, null, null, "UC_good"));
+               this.units?.push?.(_loc3_ = new Unit(this, "UB_good", 9, 26, 0.5, undefined));
+               this.units?.push?.(new Unit(this, "UH_good", 7, 26, 0.625, undefined));
+               this.units?.push?.(new Unit(this, "UI_good", 3, 2, 0.5, undefined, undefined, undefined, "UF_good"));
+               this.units?.push?.(new Unit(this, "UI_good", 4, 16, 0.5, undefined, undefined, undefined, "UC_good"));
+               this.units?.push?.(new Unit(this, "UI_good", 12, 17, 0.5, undefined, undefined, undefined, "UC_good"));
+               this.units?.push?.(new Unit(this, "UI_good", 14, 27, 0.5, undefined, undefined, undefined, "UC_good"));
+               this.units?.push?.(new Unit(this, "UI_good", 14, 12, 0.5, undefined, undefined, undefined, "UC_good"));
+               this.units?.push?.(new Unit(this, "UI_good", 7, 16, 0.5, undefined, undefined, undefined, "UC_good"));
                this.buildings?.push?.(_loc2_ = new Building(this, "BG_evil", 8, 4));
                this.buildings?.push?.(new Building(this, "BD_evil", 7, 3));
                this.buildings?.push?.(new Building(this, "BD_evil", 7, 5));
@@ -5373,12 +5373,12 @@
                this.buildings?.push?.(new Building(this, "BB_evil", 14, 3));
                this.buildings?.push?.(new Building(this, "BB_evil", 1, 2));
                this.buildings?.push?.(new Building(this, "BB_evil", 1, 5));
-               this.indicators?.push?.(new Indicator(this, _loc3_, null, null, "focus"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level9_ind1"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, _loc3_, null, dialogue?.("int_level9_ind2"), "selected"));
+               this.indicators?.push?.(new Indicator(this, _loc3_, undefined, undefined, "focus"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level9_ind1"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, _loc3_, undefined, dialogue?.("int_level9_ind2"), "selected"));
                this.indicators?.push?.(new Indicator(this, _loc3_, this.units?.[1], dialogue?.("int_level9_ind3"), "voyage"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level9_ind4"), "message", 160));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level9_ind5"), "message"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level9_ind4"), "message", 160));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level9_ind5"), "message"));
                this.arena?.shroud?.reveal?.(8, 6, 3);
                __as.set(this.camera, "focus", _loc2_);
                this.cash = 0;
@@ -5395,9 +5395,9 @@
                this.units?.push?.(new Unit(this, "UC_good", 4, 20, 0.375));
                this.units?.push?.(new Unit(this, "UC_good", 7, 20, 0.625));
                this.units?.push?.(new Unit(this, "UD_good", 13, 26, 0.5));
-               this.units?.push?.(new Unit(this, "UI_good", 27, 3, 0.5, null, null, null, "UB_good"));
-               this.units?.push?.(new Unit(this, "UI_good", 21, 21, 0.5, null, null, null, "UD_good"));
-               this.units?.push?.(new Unit(this, "UI_good", 10, 10, 0.5, null, null, null, "UF_good"));
+               this.units?.push?.(new Unit(this, "UI_good", 27, 3, 0.5, undefined, undefined, undefined, "UB_good"));
+               this.units?.push?.(new Unit(this, "UI_good", 21, 21, 0.5, undefined, undefined, undefined, "UD_good"));
+               this.units?.push?.(new Unit(this, "UI_good", 10, 10, 0.5, undefined, undefined, undefined, "UF_good"));
                this.buildings?.push?.(_loc3_ = new Building(this, "BA_evil", 25, 12));
                this.buildings?.push?.(new Building(this, "BD_evil", 30, 14));
                this.buildings?.push?.(new Building(this, "BD_evil", 21, 12));
@@ -5424,26 +5424,26 @@
                this.buildings?.push?.(new Building(this, "BB_evil", 29, 7));
                this.units?.push?.(new Unit(this, "UD_evil", 20, 6));
                this.units?.push?.(new Unit(this, "UD_evil", 4, 5));
-               this.units?.push?.(new Unit(this, "UG_evil", null, null, null, null, null, null, null, true));
-               this.units?.push?.(new Unit(this, "UG_evil", null, null, null, null, null, null, null, true));
-               this.units?.push?.(new Unit(this, "UC_evil", 26, 8, null, null, null, "roam", 8, true));
-               this.units?.push?.(new Unit(this, "UC_evil", 26, 8, null, null, null, "roam", 8, true));
-               this.units?.push?.(new Unit(this, "UF_evil", 15, 15, null, null, null, "roam", 6, false));
-               this.units?.push?.(new Unit(this, "UF_evil", 16, 16, null, null, null, "roam", 6, true));
-               this.units?.push?.(new Unit(this, "UE_evil", null, null, null, null, null, "still", 1000, false));
-               this.units?.push?.(new Unit(this, "UE_evil", null, null, null, null, null, "still", 2000, true));
-               this.units?.push?.(new Unit(this, "UA_evil", 25, 29, null, null, null, "roam", 2, true));
-               this.units?.push?.(new Unit(this, "UA_evil", 6, 2, null, null, null, "roam", 2, true));
-               this.units?.push?.(new Unit(this, "UA_evil", 26, 8, null, null, null, "roam", 8, true));
-               this.units?.push?.(new Unit(this, "UB_evil", null, null, null, null, null, "seek", null, true));
+               this.units?.push?.(new Unit(this, "UG_evil", undefined, undefined, undefined, undefined, undefined, undefined, undefined, true));
+               this.units?.push?.(new Unit(this, "UG_evil", undefined, undefined, undefined, undefined, undefined, undefined, undefined, true));
+               this.units?.push?.(new Unit(this, "UC_evil", 26, 8, undefined, undefined, undefined, "roam", 8, true));
+               this.units?.push?.(new Unit(this, "UC_evil", 26, 8, undefined, undefined, undefined, "roam", 8, true));
+               this.units?.push?.(new Unit(this, "UF_evil", 15, 15, undefined, undefined, undefined, "roam", 6, false));
+               this.units?.push?.(new Unit(this, "UF_evil", 16, 16, undefined, undefined, undefined, "roam", 6, true));
+               this.units?.push?.(new Unit(this, "UE_evil", undefined, undefined, undefined, undefined, undefined, "still", 1000, false));
+               this.units?.push?.(new Unit(this, "UE_evil", undefined, undefined, undefined, undefined, undefined, "still", 2000, true));
+               this.units?.push?.(new Unit(this, "UA_evil", 25, 29, undefined, undefined, undefined, "roam", 2, true));
+               this.units?.push?.(new Unit(this, "UA_evil", 6, 2, undefined, undefined, undefined, "roam", 2, true));
+               this.units?.push?.(new Unit(this, "UA_evil", 26, 8, undefined, undefined, undefined, "roam", 8, true));
+               this.units?.push?.(new Unit(this, "UB_evil", undefined, undefined, undefined, undefined, undefined, "seek", undefined, true));
                this.units?.push?.(new Unit(this, "UI_evil", 28, 26, 0.5));
                this.units?.push?.(new Unit(this, "UI_evil", 3, 5, 0.5));
-               this.indicators?.push?.(new Indicator(this, _loc3_, null, null, "focus"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level10_ind1"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, _loc4_, null, null, "focus"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level10_ind2"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, _loc5_, null, null, "focus"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level10_ind3"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, _loc3_, undefined, undefined, "focus"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level10_ind1"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, _loc4_, undefined, undefined, "focus"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level10_ind2"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, _loc5_, undefined, undefined, "focus"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level10_ind3"), "message", 80));
                this.arena?.shroud?.reveal?.(25, 11, 2);
                this.arena?.shroud?.reveal?.(2, 20, 4);
                this.arena?.shroud?.reveal?.(2, 26, 4);
@@ -5458,18 +5458,18 @@
                this.buildings?.push?.(new Building(this, "BA_good", -10, -10));
                this.buildings?.push?.(_loc4_ = new Building(this, "BX_good", 4, 8));
                this.units?.push?.(_loc3_ = new Unit(this, "UA_evil", 11, 5, 0.5));
-               this.units?.push?.(new Unit(this, "UB_good", 3, 7, null, null, null, "roam", 6, true));
-               this.units?.push?.(new Unit(this, "UA_good", 3, 5, null, null, null, "roam", 4, true));
-               this.units?.push?.(new Unit(this, "UA_good", 3, 5, null, null, null, "roam", 4, true));
+               this.units?.push?.(new Unit(this, "UB_good", 3, 7, undefined, undefined, undefined, "roam", 6, true));
+               this.units?.push?.(new Unit(this, "UA_good", 3, 5, undefined, undefined, undefined, "roam", 4, true));
+               this.units?.push?.(new Unit(this, "UA_good", 3, 5, undefined, undefined, undefined, "roam", 4, true));
                this.units?.push?.(new Unit(this, "UI_good", 4, 9, 0.5));
-               this.indicators?.push?.(new Indicator(this, _loc4_, null, null, "focus"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level11_ind1"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, _loc3_, null, dialogue?.("int_level11_ind2"), "selected"));
+               this.indicators?.push?.(new Indicator(this, _loc4_, undefined, undefined, "focus"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level11_ind1"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, _loc3_, undefined, dialogue?.("int_level11_ind2"), "selected"));
                this.indicators?.push?.(new Indicator(this, _loc3_, this.arena?.tileHandles?._9_7, dialogue?.("int_level11_ind3"), "voyage"));
                this.indicators?.push?.(new Indicator(this, _loc3_, this.arena?.tileHandles?._7_7, dialogue?.("int_level11_ind4"), "voyage"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level11_ind5"), "message", 180));
-               this.indicators?.push?.(new Indicator(this, this.arena?.tileHandles?._6_8, null, null, "focus"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level11_ind6"), "message"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level11_ind5"), "message", 180));
+               this.indicators?.push?.(new Indicator(this, this.arena?.tileHandles?._6_8, undefined, undefined, "focus"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level11_ind6"), "message"));
                this.arena?.shroud?.reveal?.(5, 6, 3);
                this.arena?.shroud?.reveal?.(12, 2, 2);
                this.arena?.shroud?.reveal?.(9, 7, 2);
@@ -5481,24 +5481,24 @@
             }
             if(this.level == 12)
             {
-               this.units?.push?.(_loc2_ = new Unit(this, "UD_good", 4, 4, 0.25, null, 0.3));
+               this.units?.push?.(_loc2_ = new Unit(this, "UD_good", 4, 4, 0.25, undefined, 0.3));
                __as.set(_loc2_?.stats, "maxCargo", 999999900);
                __as.set(_loc2_?.stats, "repair", true);
-               this.units?.push?.(new Unit(this, "UA_good", 3, 4, 0.75, null, null, "guard", _loc2_));
-               this.units?.push?.(new Unit(this, "UA_good", 5, 4, 0.75, null, null, "guard", _loc2_));
-               this.units?.push?.(new Unit(this, "UA_good", 4, 3, 0.75, null, null, "roam", 8));
-               this.units?.push?.(new Unit(this, "UA_good", 4, 5, 0.75, null, null, "roam", 8));
+               this.units?.push?.(new Unit(this, "UA_good", 3, 4, 0.75, undefined, undefined, "guard", _loc2_));
+               this.units?.push?.(new Unit(this, "UA_good", 5, 4, 0.75, undefined, undefined, "guard", _loc2_));
+               this.units?.push?.(new Unit(this, "UA_good", 4, 3, 0.75, undefined, undefined, "roam", 8));
+               this.units?.push?.(new Unit(this, "UA_good", 4, 5, 0.75, undefined, undefined, "roam", 8));
                this.units?.push?.(_loc4_ = new Unit(this, "UA_evil", 9, 12, 0.8125));
                this.units?.push?.(_loc3_ = new Unit(this, "UA_evil", 10, 12, 0.875));
                this.units?.push?.(_loc5_ = new Unit(this, "UA_evil", 11, 12, 0.9375));
-               this.units?.push?.(new Unit(this, "UI_evil", 1, 4, 0.5, null, null, null, "UA_evil"));
-               this.indicators?.push?.(new Indicator(this, _loc2_, null, null, "focus"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level12_ind1"), "message", 120));
-               this.indicators?.push?.(new Indicator(this, new Array(_loc3_, _loc4_, _loc5_), null, dialogue?.("int_level12_ind2"), "selected"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level12_ind3"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level12_ind4"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level12_ind5"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level12_ind6"), "message"));
+               this.units?.push?.(new Unit(this, "UI_evil", 1, 4, 0.5, undefined, undefined, undefined, "UA_evil"));
+               this.indicators?.push?.(new Indicator(this, _loc2_, undefined, undefined, "focus"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level12_ind1"), "message", 120));
+               this.indicators?.push?.(new Indicator(this, new Array(_loc3_, _loc4_, _loc5_), undefined, dialogue?.("int_level12_ind2"), "selected"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level12_ind3"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level12_ind4"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level12_ind5"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level12_ind6"), "message"));
                this.arena?.shroud?.reveal?.(5, 2, 3);
                this.arena?.shroud?.reveal?.(5, 4, 3);
                __as.set(this.camera, "focus", _loc3_);
@@ -5510,21 +5510,21 @@
             if(this.level == 13)
             {
                this.buildings?.push?.(new Building(this, "BA_evil", 9, 4));
-               this.units?.push?.(_loc2_ = new Unit(this, "UD_evil", null, null, 0.75));
+               this.units?.push?.(_loc2_ = new Unit(this, "UD_evil", undefined, undefined, 0.75));
                this.units?.push?.(new Unit(this, "UA_evil", 8, 5, 0.625));
                this.units?.push?.(new Unit(this, "UA_evil", 8, 4, 0.5));
-               this.units?.push?.(new Unit(this, "UA_good", 2, 6, 0.25, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_good", 4, 11, 0.75, null, null, "roam", 2));
-               this.units?.push?.(new Unit(this, "UI_evil", 6, 10, 0.5, null, null, null, "UA_evil"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level13_ind1"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, "BB_evil", null, dialogue?.("int_level13_ind2"), "construction"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level13_ind3"), "message", 60));
-               this.indicators?.push?.(new Indicator(this, _loc2_, null, dialogue?.("int_level13_ind4"), "selected"));
+               this.units?.push?.(new Unit(this, "UA_good", 2, 6, 0.25, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_good", 4, 11, 0.75, undefined, undefined, "roam", 2));
+               this.units?.push?.(new Unit(this, "UI_evil", 6, 10, 0.5, undefined, undefined, undefined, "UA_evil"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level13_ind1"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, "BB_evil", undefined, dialogue?.("int_level13_ind2"), "construction"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level13_ind3"), "message", 60));
+               this.indicators?.push?.(new Indicator(this, _loc2_, undefined, dialogue?.("int_level13_ind4"), "selected"));
                this.indicators?.push?.(new Indicator(this, _loc2_, this.arena?.tileHandles?._7_5, dialogue?.("int_level13_ind5"), "voyage"));
                this.indicators?.push?.(new Indicator(this, _loc2_, this.arena?.tileHandles?._5_6, dialogue?.("int_level13_ind6"), "voyage"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level13_ind7"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level13_ind8"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level13_ind9"), "message"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level13_ind7"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level13_ind8"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level13_ind9"), "message"));
                this.cash = 800;
                this.training = true;
                this.jukebox = 2;
@@ -5537,28 +5537,28 @@
                this.buildings?.push?.(_loc2_ = new Building(this, "BC_good", 6, 23));
                this.units?.push?.(new Unit(this, "UD_evil", 3, 2));
                this.units?.push?.(_loc4_ = new Unit(this, "UE_evil", 5, 23, 0.3125));
-               this.units?.push?.(new Unit(this, "UA_good", 9, 25, 0.75, null, null, "still", 20));
-               this.units?.push?.(new Unit(this, "UA_good", 9, 25, 0.75, null, null, "still", 40));
-               this.units?.push?.(new Unit(this, "UA_good", 9, 25, 0.75, null, null, "still", 60));
-               this.units?.push?.(new Unit(this, "UA_good", 9, 25, 0.75, null, null, "still", 80));
-               this.units?.push?.(new Unit(this, "UA_good", 9, 25, 0.75, null, null, "still", 100));
-               this.units?.push?.(new Unit(this, "UA_good", 10, 25, 0.75, null, null, "still", 1000));
-               this.units?.push?.(new Unit(this, "UA_good", 10, 25, 0.75, null, null, "still", 1000));
-               this.units?.push?.(new Unit(this, "UA_good", 10, 25, 0.75, null, null, "still", 1000, true));
-               this.units?.push?.(new Unit(this, "UA_good", 10, 25, 0.75, null, null, "still", 1000, true));
-               this.units?.push?.(new Unit(this, "UA_good", 10, 25, 0.75, null, null, "still", 1000, true));
-               this.units?.push?.(new Unit(this, "UE_good", 1, 9, 0.25, null, null, "still", 2000));
-               this.units?.push?.(new Unit(this, "UE_good", 2, 25, 0.25, null, null, "still", 3000));
-               this.units?.push?.(new Unit(this, "UE_good", 10, 24, 0.75, null, null, "still", 4000));
-               this.units?.push?.(new Unit(this, "UI_good", 1, 8, 0.5, null, null, null, "UE_evil"));
-               this.indicators?.push?.(new Indicator(this, _loc4_, null, dialogue?.("int_level14_ind1"), "selected"));
+               this.units?.push?.(new Unit(this, "UA_good", 9, 25, 0.75, undefined, undefined, "still", 20));
+               this.units?.push?.(new Unit(this, "UA_good", 9, 25, 0.75, undefined, undefined, "still", 40));
+               this.units?.push?.(new Unit(this, "UA_good", 9, 25, 0.75, undefined, undefined, "still", 60));
+               this.units?.push?.(new Unit(this, "UA_good", 9, 25, 0.75, undefined, undefined, "still", 80));
+               this.units?.push?.(new Unit(this, "UA_good", 9, 25, 0.75, undefined, undefined, "still", 100));
+               this.units?.push?.(new Unit(this, "UA_good", 10, 25, 0.75, undefined, undefined, "still", 1000));
+               this.units?.push?.(new Unit(this, "UA_good", 10, 25, 0.75, undefined, undefined, "still", 1000));
+               this.units?.push?.(new Unit(this, "UA_good", 10, 25, 0.75, undefined, undefined, "still", 1000, true));
+               this.units?.push?.(new Unit(this, "UA_good", 10, 25, 0.75, undefined, undefined, "still", 1000, true));
+               this.units?.push?.(new Unit(this, "UA_good", 10, 25, 0.75, undefined, undefined, "still", 1000, true));
+               this.units?.push?.(new Unit(this, "UE_good", 1, 9, 0.25, undefined, undefined, "still", 2000));
+               this.units?.push?.(new Unit(this, "UE_good", 2, 25, 0.25, undefined, undefined, "still", 3000));
+               this.units?.push?.(new Unit(this, "UE_good", 10, 24, 0.75, undefined, undefined, "still", 4000));
+               this.units?.push?.(new Unit(this, "UI_good", 1, 8, 0.5, undefined, undefined, undefined, "UE_evil"));
+               this.indicators?.push?.(new Indicator(this, _loc4_, undefined, dialogue?.("int_level14_ind1"), "selected"));
                this.indicators?.push?.(new Indicator(this, _loc4_, this.arena?.tileHandles?._8_6, dialogue?.("int_level14_ind2"), "voyage"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level14_ind3"), "message", 60));
-               this.indicators?.push?.(new Indicator(this, this.arena?.tileHandles?._6_5, null, null, "focus"));
-               this.indicators?.push?.(new Indicator(this, "BC_evil", null, dialogue?.("int_level14_ind4"), "construction"));
-               this.indicators?.push?.(new Indicator(this, "UA_evil", null, dialogue?.("int_level14_ind5"), "construction"));
-               this.indicators?.push?.(new Indicator(this, "BD_evil", null, dialogue?.("int_level14_ind6"), "construction"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level14_ind7"), "message"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level14_ind3"), "message", 60));
+               this.indicators?.push?.(new Indicator(this, this.arena?.tileHandles?._6_5, undefined, undefined, "focus"));
+               this.indicators?.push?.(new Indicator(this, "BC_evil", undefined, dialogue?.("int_level14_ind4"), "construction"));
+               this.indicators?.push?.(new Indicator(this, "UA_evil", undefined, dialogue?.("int_level14_ind5"), "construction"));
+               this.indicators?.push?.(new Indicator(this, "BD_evil", undefined, dialogue?.("int_level14_ind6"), "construction"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level14_ind7"), "message"));
                this.arena?.shroud?.reveal?.(6, 6, 4);
                this.arena?.shroud?.reveal?.(8, 12, 4);
                this.arena?.shroud?.reveal?.(7, 19, 3);
@@ -5575,27 +5575,27 @@
                this.buildings?.push?.(new Building(this, "BD_good", 7, 2));
                this.buildings?.push?.(new Building(this, "BD_good", 7, 8));
                this.buildings?.push?.(new Building(this, "BB_good", -10, -10));
-               this.units?.push?.(_loc4_ = new Unit(this, "UE_evil", 26, 5, 0.3125, null, 0.2));
-               this.units?.push?.(new Unit(this, "UA_good", 15, 9, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_good", 20, 3, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_good", 23, 9, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_good", 13, 4, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_good", 13, 4, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_good", 14, 10, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_good", 14, 10, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_good", 10, 6, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_good", 19, 6, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UF_good", 3, 5, 0.75, null, null, "roam", 4));
-               this.units?.push?.(new Unit(this, "UI_good", 2, 2, 0.5, null, null, null, "UE_evil"));
-               this.units?.push?.(new Unit(this, "UI_good", 2, 3, 0.5, null, null, null, "UE_evil"));
-               this.units?.push?.(new Unit(this, "UI_good", 2, 4, 0.5, null, null, null, "UE_evil"));
-               this.units?.push?.(new Unit(this, "UI_good", 2, 7, 0.5, null, null, null, "UE_evil"));
-               this.units?.push?.(new Unit(this, "UI_good", 2, 8, 0.5, null, null, null, "UE_evil"));
-               this.units?.push?.(new Unit(this, "UI_good", 2, 9, 0.5, null, null, null, "UE_evil"));
-               this.indicators?.push?.(new Indicator(this, "UB_evil", null, dialogue?.("int_level15_ind1"), "construction"));
-               this.indicators?.push?.(new Indicator(this, "find:UB_evil", null, dialogue?.("int_level15_ind2"), "selected"));
+               this.units?.push?.(_loc4_ = new Unit(this, "UE_evil", 26, 5, 0.3125, undefined, 0.2));
+               this.units?.push?.(new Unit(this, "UA_good", 15, 9, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_good", 20, 3, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_good", 23, 9, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_good", 13, 4, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_good", 13, 4, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_good", 14, 10, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_good", 14, 10, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_good", 10, 6, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_good", 19, 6, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UF_good", 3, 5, 0.75, undefined, undefined, "roam", 4));
+               this.units?.push?.(new Unit(this, "UI_good", 2, 2, 0.5, undefined, undefined, undefined, "UE_evil"));
+               this.units?.push?.(new Unit(this, "UI_good", 2, 3, 0.5, undefined, undefined, undefined, "UE_evil"));
+               this.units?.push?.(new Unit(this, "UI_good", 2, 4, 0.5, undefined, undefined, undefined, "UE_evil"));
+               this.units?.push?.(new Unit(this, "UI_good", 2, 7, 0.5, undefined, undefined, undefined, "UE_evil"));
+               this.units?.push?.(new Unit(this, "UI_good", 2, 8, 0.5, undefined, undefined, undefined, "UE_evil"));
+               this.units?.push?.(new Unit(this, "UI_good", 2, 9, 0.5, undefined, undefined, undefined, "UE_evil"));
+               this.indicators?.push?.(new Indicator(this, "UB_evil", undefined, dialogue?.("int_level15_ind1"), "construction"));
+               this.indicators?.push?.(new Indicator(this, "find:UB_evil", undefined, dialogue?.("int_level15_ind2"), "selected"));
                this.indicators?.push?.(new Indicator(this, "find:UB_evil", _loc4_, dialogue?.("int_level15_ind3"), "voyage"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level15_ind4"), "message"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level15_ind4"), "message"));
                this.arena?.shroud?.reveal?.(28, 5, 4);
                this.arena?.shroud?.reveal?.(28, 6, 4);
                this.arena?.shroud?.reveal?.(3, 5, 4);
@@ -5627,13 +5627,13 @@
                this.buildings?.push?.(new Building(this, "BC_good", 3, 19));
                this.buildings?.push?.(new Building(this, "BG_good", 6, 17));
                this.units?.push?.(new Unit(this, "UD_evil", 20, 9, 0.5));
-               this.units?.push?.(new Unit(this, "UC_good", null, null, null, null, null, "still", 300, true));
-               this.units?.push?.(new Unit(this, "UC_good", null, null, null, null, null, "still", 500, true));
-               this.units?.push?.(new Unit(this, "UC_good", null, null, null, null, null, "still", 3000, true));
-               this.units?.push?.(new Unit(this, "UC_good", 5, 19, null, null, null, "roam", 6, true));
-               this.units?.push?.(new Unit(this, "UC_good", 5, 19, null, null, null, "roam", 6, true));
-               this.units?.push?.(new Unit(this, "UF_good", 5, 19, null, null, null, "roam", 8));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level16_ind1"), "message", 120));
+               this.units?.push?.(new Unit(this, "UC_good", undefined, undefined, undefined, undefined, undefined, "still", 300, true));
+               this.units?.push?.(new Unit(this, "UC_good", undefined, undefined, undefined, undefined, undefined, "still", 500, true));
+               this.units?.push?.(new Unit(this, "UC_good", undefined, undefined, undefined, undefined, undefined, "still", 3000, true));
+               this.units?.push?.(new Unit(this, "UC_good", 5, 19, undefined, undefined, undefined, "roam", 6, true));
+               this.units?.push?.(new Unit(this, "UC_good", 5, 19, undefined, undefined, undefined, "roam", 6, true));
+               this.units?.push?.(new Unit(this, "UF_good", 5, 19, undefined, undefined, undefined, "roam", 8));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level16_ind1"), "message", 120));
                __as.set(this.camera, "focus", this.arena?.tileHandles?._20_4);
                this.cash = 4000;
                this.cashOppo = 250000;
@@ -5641,7 +5641,7 @@
             }
             if(this.level == 17)
             {
-               this.buildings?.push?.(_loc2_ = new Building(this, "BA_evil", 28, 12, null, 0.25));
+               this.buildings?.push?.(_loc2_ = new Building(this, "BA_evil", 28, 12, undefined, 0.25));
                this.friendlyTarget = _loc2_;
                this.buildings?.push?.(_loc2_ = new Building(this, "BA_good", -10, -10));
                __as.set(_loc2_?.stats, "isThreat", false);
@@ -5651,26 +5651,26 @@
                this.buildings?.push?.(new Building(this, "BD_good", 6, 13));
                this.units?.push?.(new Unit(this, "UF_evil", 27, 10, 0.75));
                this.units?.push?.(new Unit(this, "UE_evil", 27, 11, 0.75));
-               this.units?.push?.(new Unit(this, "UI_good", 8, 4, 0.5, null, null, null, "UF_evil"));
-               this.units?.push?.(new Unit(this, "UI_good", 21, 13, 0.5, null, null, null, "UF_evil"));
-               this.units?.push?.(new Unit(this, "UI_evil", 14, 2, 0.5, null, null, null, 1200));
-               this.units?.push?.(new Unit(this, "UE_good", 4, 10, null, null, null, "roam", 8));
-               this.units?.push?.(new Unit(this, "UB_good", null, null, null, null, null, "seek", null, true));
-               this.units?.push?.(new Unit(this, "UB_good", null, null, null, null, null, "seek", null, true));
-               this.units?.push?.(new Unit(this, "UB_good", null, null, null, null, null, "still", 50, true));
-               this.units?.push?.(new Unit(this, "UB_good", null, null, null, null, null, "still", 50, true));
-               this.units?.push?.(new Unit(this, "UB_good", null, null, null, null, null, "still", 100, true));
-               this.units?.push?.(new Unit(this, "UB_good", null, null, null, null, null, "still", 100, true));
-               this.units?.push?.(new Unit(this, "UB_good", null, null, null, null, null, "still", 150, true));
-               this.units?.push?.(new Unit(this, "UB_good", null, null, null, null, null, "still", 150, true));
-               this.units?.push?.(new Unit(this, "UB_good", null, null, null, null, null, "still", 200, true));
-               this.units?.push?.(new Unit(this, "UB_good", null, null, null, null, null, "still", 200, true));
-               this.units?.push?.(new Unit(this, "UB_good", null, null, null, null, null, "still", 250, true));
-               this.units?.push?.(new Unit(this, "UB_good", null, null, null, null, null, "still", 250, true));
-               this.units?.push?.(new Unit(this, "UB_good", null, null, null, null, null, "still", 300, true));
-               this.units?.push?.(new Unit(this, "UB_good", null, null, null, null, null, "still", 300, true));
-               this.units?.push?.(new Unit(this, "UB_good", null, null, null, null, null, "still", 350, true));
-               this.units?.push?.(new Unit(this, "UB_good", null, null, null, null, null, "still", 350, true));
+               this.units?.push?.(new Unit(this, "UI_good", 8, 4, 0.5, undefined, undefined, undefined, "UF_evil"));
+               this.units?.push?.(new Unit(this, "UI_good", 21, 13, 0.5, undefined, undefined, undefined, "UF_evil"));
+               this.units?.push?.(new Unit(this, "UI_evil", 14, 2, 0.5, undefined, undefined, undefined, 1200));
+               this.units?.push?.(new Unit(this, "UE_good", 4, 10, undefined, undefined, undefined, "roam", 8));
+               this.units?.push?.(new Unit(this, "UB_good", undefined, undefined, undefined, undefined, undefined, "seek", undefined, true));
+               this.units?.push?.(new Unit(this, "UB_good", undefined, undefined, undefined, undefined, undefined, "seek", undefined, true));
+               this.units?.push?.(new Unit(this, "UB_good", undefined, undefined, undefined, undefined, undefined, "still", 50, true));
+               this.units?.push?.(new Unit(this, "UB_good", undefined, undefined, undefined, undefined, undefined, "still", 50, true));
+               this.units?.push?.(new Unit(this, "UB_good", undefined, undefined, undefined, undefined, undefined, "still", 100, true));
+               this.units?.push?.(new Unit(this, "UB_good", undefined, undefined, undefined, undefined, undefined, "still", 100, true));
+               this.units?.push?.(new Unit(this, "UB_good", undefined, undefined, undefined, undefined, undefined, "still", 150, true));
+               this.units?.push?.(new Unit(this, "UB_good", undefined, undefined, undefined, undefined, undefined, "still", 150, true));
+               this.units?.push?.(new Unit(this, "UB_good", undefined, undefined, undefined, undefined, undefined, "still", 200, true));
+               this.units?.push?.(new Unit(this, "UB_good", undefined, undefined, undefined, undefined, undefined, "still", 200, true));
+               this.units?.push?.(new Unit(this, "UB_good", undefined, undefined, undefined, undefined, undefined, "still", 250, true));
+               this.units?.push?.(new Unit(this, "UB_good", undefined, undefined, undefined, undefined, undefined, "still", 250, true));
+               this.units?.push?.(new Unit(this, "UB_good", undefined, undefined, undefined, undefined, undefined, "still", 300, true));
+               this.units?.push?.(new Unit(this, "UB_good", undefined, undefined, undefined, undefined, undefined, "still", 300, true));
+               this.units?.push?.(new Unit(this, "UB_good", undefined, undefined, undefined, undefined, undefined, "still", 350, true));
+               this.units?.push?.(new Unit(this, "UB_good", undefined, undefined, undefined, undefined, undefined, "still", 350, true));
                this.cash = 0;
                this.cashOppo = 250000;
                this.jukebox = 1;
@@ -5708,25 +5708,25 @@
                this.units?.push?.(new Unit(this, "UC_evil", 12, 8));
                this.units?.push?.(new Unit(this, "UC_evil", 13, 7));
                this.units?.push?.(new Unit(this, "UD_evil", 15, 8, 0.5));
-               this.units?.push?.(new Unit(this, "UC_good", 5, 26, null, null, null, "roam", 6));
-               this.units?.push?.(new Unit(this, "UA_good", 5, 26, null, null, null, "roam", 6, true));
-               this.units?.push?.(new Unit(this, "UC_good", 15, 26, null, null, null, "roam", 6));
-               this.units?.push?.(new Unit(this, "UA_good", 15, 26, null, null, null, "roam", 6, true));
-               this.units?.push?.(new Unit(this, "UF_good", 7, 22, 0.0625, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UF_good", 14, 22, 0.9375, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UE_good", 8, 21, 0.9375, null, null, "still", 2500));
-               this.units?.push?.(new Unit(this, "UE_good", 13, 21, 0.0625, null, null, "still", 7500, true));
-               this.units?.push?.(new Unit(this, "UF_good", 7, 27, 0, null, null, "still", 5000));
-               this.units?.push?.(new Unit(this, "UF_good", 14, 27, 0, null, null, "still", 10000));
-               this.units?.push?.(new Unit(this, "UG_good", null, null, null, null, null, null, null, true));
-               this.units?.push?.(new Unit(this, "UG_good", null, null, null, null, null, null, null, true));
-               this.units?.push?.(new Unit(this, "UA_good", 15, 26, null, null, null, "still", 100, true));
-               this.units?.push?.(new Unit(this, "UA_good", 15, 26, null, null, null, "still", 100, true));
-               this.units?.push?.(new Unit(this, "UA_good", 15, 26, null, null, null, "still", 100, true));
-               this.units?.push?.(new Unit(this, "UB_good", 15, 26, null, null, null, "still", 100, true));
-               this.units?.push?.(new Unit(this, "UB_good", 15, 26, null, null, null, "still", 100, true));
-               this.units?.push?.(new Unit(this, "UI_evil", 7, 29, 0.5, null, null, null, 10000));
-               this.units?.push?.(new Unit(this, "UI_evil", 14, 29, 0.5, null, null, null, 10000));
+               this.units?.push?.(new Unit(this, "UC_good", 5, 26, undefined, undefined, undefined, "roam", 6));
+               this.units?.push?.(new Unit(this, "UA_good", 5, 26, undefined, undefined, undefined, "roam", 6, true));
+               this.units?.push?.(new Unit(this, "UC_good", 15, 26, undefined, undefined, undefined, "roam", 6));
+               this.units?.push?.(new Unit(this, "UA_good", 15, 26, undefined, undefined, undefined, "roam", 6, true));
+               this.units?.push?.(new Unit(this, "UF_good", 7, 22, 0.0625, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UF_good", 14, 22, 0.9375, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UE_good", 8, 21, 0.9375, undefined, undefined, "still", 2500));
+               this.units?.push?.(new Unit(this, "UE_good", 13, 21, 0.0625, undefined, undefined, "still", 7500, true));
+               this.units?.push?.(new Unit(this, "UF_good", 7, 27, 0, undefined, undefined, "still", 5000));
+               this.units?.push?.(new Unit(this, "UF_good", 14, 27, 0, undefined, undefined, "still", 10000));
+               this.units?.push?.(new Unit(this, "UG_good", undefined, undefined, undefined, undefined, undefined, undefined, undefined, true));
+               this.units?.push?.(new Unit(this, "UG_good", undefined, undefined, undefined, undefined, undefined, undefined, undefined, true));
+               this.units?.push?.(new Unit(this, "UA_good", 15, 26, undefined, undefined, undefined, "still", 100, true));
+               this.units?.push?.(new Unit(this, "UA_good", 15, 26, undefined, undefined, undefined, "still", 100, true));
+               this.units?.push?.(new Unit(this, "UA_good", 15, 26, undefined, undefined, undefined, "still", 100, true));
+               this.units?.push?.(new Unit(this, "UB_good", 15, 26, undefined, undefined, undefined, "still", 100, true));
+               this.units?.push?.(new Unit(this, "UB_good", 15, 26, undefined, undefined, undefined, "still", 100, true));
+               this.units?.push?.(new Unit(this, "UI_evil", 7, 29, 0.5, undefined, undefined, undefined, 10000));
+               this.units?.push?.(new Unit(this, "UI_evil", 14, 29, 0.5, undefined, undefined, undefined, 10000));
                __as.set(this.camera, "focus", this.arena?.tileHandles?._12_4);
                this.cash = 2000;
                this.cashOppo = 250000;
@@ -5745,7 +5745,7 @@
                this.buildings?.push?.(new Building(this, "BG_evil", 7, 3));
                this.buildings?.push?.(new Building(this, "BC_evil", 5, 23, "good", 0.2));
                this.buildings?.push?.(new Building(this, "BC_good", -10, -10));
-               this.buildings?.push?.(new Building(this, "BD_good", 4, 12, null, 0.8));
+               this.buildings?.push?.(new Building(this, "BD_good", 4, 12, undefined, 0.8));
                this.buildings?.push?.(new Building(this, "BD_good", 3, 13));
                this.buildings?.push?.(new Building(this, "BB_good", 3, 11));
                this.buildings?.push?.(new Building(this, "BB_good", 2, 11));
@@ -5756,7 +5756,7 @@
                this.buildings?.push?.(new Building(this, "BB_good", 9, 13));
                this.buildings?.push?.(new Building(this, "BB_good", 8, 11));
                this.buildings?.push?.(new Building(this, "BD_good", 8, 13));
-               this.buildings?.push?.(new Building(this, "BD_good", 7, 12, null, 0.8));
+               this.buildings?.push?.(new Building(this, "BD_good", 7, 12, undefined, 0.8));
                this.buildings?.push?.(_loc3_ = new Building(this, "BH_good", 6, 28));
                this.buildings?.push?.(new Building(this, "BB_good", 5, 28));
                this.buildings?.push?.(new Building(this, "BD_good", 4, 28));
@@ -5778,21 +5778,21 @@
                this.units?.push?.(new Unit(this, "UB_evil", 7, 5));
                this.units?.push?.(_loc2_ = new Unit(this, "UB_evil", 7, 5));
                this.rejig?.(_loc2_);
-               this.units?.push?.(new Unit(this, "UE_good", 10, 27, 0.875, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UE_good", 1, 27, 0.125, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_good", 10, 22, null, null, null, "roam", 2));
-               this.units?.push?.(new Unit(this, "UA_good", 1, 22, null, null, null, "roam", 2));
-               this.units?.push?.(new Unit(this, "UI_good", 1, 17, 0.5, null, null, null, 8000));
-               this.units?.push?.(new Unit(this, "UI_good", 3, 3, 0.5, null, null, null, 2000));
-               this.units?.push?.(new Unit(this, "UC_good", 5, 29, null, null, null, "still", 4000));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level19_ind1"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, this.arena?.tileHandles?._6_13, null, null, "focus"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level19_ind2"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, _loc3_, null, null, "focus"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level19_ind3"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, this.arena?.tileHandles?._6_4, null, null, "focus"));
-               this.indicators?.push?.(new Indicator(this, null, null, "", "message", 1000));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level19_ind4"), "message"));
+               this.units?.push?.(new Unit(this, "UE_good", 10, 27, 0.875, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UE_good", 1, 27, 0.125, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_good", 10, 22, undefined, undefined, undefined, "roam", 2));
+               this.units?.push?.(new Unit(this, "UA_good", 1, 22, undefined, undefined, undefined, "roam", 2));
+               this.units?.push?.(new Unit(this, "UI_good", 1, 17, 0.5, undefined, undefined, undefined, 8000));
+               this.units?.push?.(new Unit(this, "UI_good", 3, 3, 0.5, undefined, undefined, undefined, 2000));
+               this.units?.push?.(new Unit(this, "UC_good", 5, 29, undefined, undefined, undefined, "still", 4000));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level19_ind1"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, this.arena?.tileHandles?._6_13, undefined, undefined, "focus"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level19_ind2"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, _loc3_, undefined, undefined, "focus"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level19_ind3"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, this.arena?.tileHandles?._6_4, undefined, undefined, "focus"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, "", "message", 1000));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level19_ind4"), "message"));
                this.arena?.shroud?.reveal?.(2, 13, 3);
                this.arena?.shroud?.reveal?.(6, 11, 4);
                this.arena?.shroud?.reveal?.(9, 13, 3);
@@ -5813,9 +5813,9 @@
                this.units?.push?.(new Unit(this, "UC_evil", 24, 11, 0.375));
                this.units?.push?.(new Unit(this, "UC_evil", 27, 11, 0.625));
                this.units?.push?.(new Unit(this, "UD_evil", 18, 5, 0.5));
-               this.units?.push?.(new Unit(this, "UI_good", 4, 28, 0.5, null, null, null, "UB_evil"));
-               this.units?.push?.(new Unit(this, "UI_good", 21, 21, 0.5, null, null, null, "UF_evil"));
-               this.units?.push?.(new Unit(this, "UI_good", 10, 10, 0.5, null, null, null, "UD_evil"));
+               this.units?.push?.(new Unit(this, "UI_good", 4, 28, 0.5, undefined, undefined, undefined, "UB_evil"));
+               this.units?.push?.(new Unit(this, "UI_good", 21, 21, 0.5, undefined, undefined, undefined, "UF_evil"));
+               this.units?.push?.(new Unit(this, "UI_good", 10, 10, 0.5, undefined, undefined, undefined, "UD_evil"));
                this.buildings?.push?.(_loc3_ = new Building(this, "BA_good", 5, 20));
                this.buildings?.push?.(new Building(this, "BD_good", 1, 16));
                this.buildings?.push?.(new Building(this, "BD_good", 10, 18));
@@ -5842,26 +5842,26 @@
                this.buildings?.push?.(new Building(this, "BB_good", 2, 23));
                this.units?.push?.(new Unit(this, "UD_good", 11, 25));
                this.units?.push?.(new Unit(this, "UD_good", 27, 26));
-               this.units?.push?.(new Unit(this, "UG_good", null, null, null, null, null, null, null, true));
-               this.units?.push?.(new Unit(this, "UG_good", null, null, null, null, null, null, null, true));
-               this.units?.push?.(new Unit(this, "UC_good", 5, 24, null, null, null, "roam", 8, true));
-               this.units?.push?.(new Unit(this, "UC_good", 5, 24, null, null, null, "roam", 8, true));
-               this.units?.push?.(new Unit(this, "UF_good", 15, 15, null, null, null, "roam", 6, false));
-               this.units?.push?.(new Unit(this, "UF_good", 14, 14, null, null, null, "roam", 6, true));
-               this.units?.push?.(new Unit(this, "UE_good", null, null, null, null, null, "still", 1000, false));
-               this.units?.push?.(new Unit(this, "UE_good", null, null, null, null, null, "still", 2000, true));
-               this.units?.push?.(new Unit(this, "UA_good", 6, 2, null, null, null, "roam", 2, true));
-               this.units?.push?.(new Unit(this, "UA_good", 25, 29, null, null, null, "roam", 2, true));
-               this.units?.push?.(new Unit(this, "UA_good", 5, 22, null, null, null, "roam", 8, true));
-               this.units?.push?.(new Unit(this, "UB_good", null, null, null, null, null, "seek", null, true));
+               this.units?.push?.(new Unit(this, "UG_good", undefined, undefined, undefined, undefined, undefined, undefined, undefined, true));
+               this.units?.push?.(new Unit(this, "UG_good", undefined, undefined, undefined, undefined, undefined, undefined, undefined, true));
+               this.units?.push?.(new Unit(this, "UC_good", 5, 24, undefined, undefined, undefined, "roam", 8, true));
+               this.units?.push?.(new Unit(this, "UC_good", 5, 24, undefined, undefined, undefined, "roam", 8, true));
+               this.units?.push?.(new Unit(this, "UF_good", 15, 15, undefined, undefined, undefined, "roam", 6, false));
+               this.units?.push?.(new Unit(this, "UF_good", 14, 14, undefined, undefined, undefined, "roam", 6, true));
+               this.units?.push?.(new Unit(this, "UE_good", undefined, undefined, undefined, undefined, undefined, "still", 1000, false));
+               this.units?.push?.(new Unit(this, "UE_good", undefined, undefined, undefined, undefined, undefined, "still", 2000, true));
+               this.units?.push?.(new Unit(this, "UA_good", 6, 2, undefined, undefined, undefined, "roam", 2, true));
+               this.units?.push?.(new Unit(this, "UA_good", 25, 29, undefined, undefined, undefined, "roam", 2, true));
+               this.units?.push?.(new Unit(this, "UA_good", 5, 22, undefined, undefined, undefined, "roam", 8, true));
+               this.units?.push?.(new Unit(this, "UB_good", undefined, undefined, undefined, undefined, undefined, "seek", undefined, true));
                this.units?.push?.(new Unit(this, "UI_evil", 28, 26, 0.5));
                this.units?.push?.(new Unit(this, "UI_evil", 3, 5, 0.5));
-               this.indicators?.push?.(new Indicator(this, _loc3_, null, null, "focus"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level20_ind1"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, _loc4_, null, null, "focus"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level20_ind2"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, _loc5_, null, null, "focus"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level20_ind3"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, _loc3_, undefined, undefined, "focus"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level20_ind1"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, _loc4_, undefined, undefined, "focus"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level20_ind2"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, _loc5_, undefined, undefined, "focus"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level20_ind3"), "message", 80));
                this.arena?.shroud?.reveal?.(6, 19, 2);
                this.arena?.shroud?.reveal?.(29, 11, 4);
                this.arena?.shroud?.reveal?.(29, 5, 4);
@@ -5881,12 +5881,12 @@
                this.buildings?.push?.(new Building(this, "BD_evil", 15, 3));
                this.buildings?.push?.(new Building(this, "BB_evil", 13, 2));
                this.buildings?.push?.(new Building(this, "BB_evil", 14, 2));
-               this.units?.push?.(new Unit(this, "UA_evil", null, null, null, null, null, null, null, true));
-               this.units?.push?.(new Unit(this, "UA_evil", null, null, null, null, null, null, null, true));
-               this.units?.push?.(new Unit(this, "UA_evil", null, null, null, null, null, null, null, true));
-               this.units?.push?.(new Unit(this, "UA_evil", null, null, null, null, null, null, null, true));
-               this.units?.push?.(new Unit(this, "UA_evil", null, null, null, null, null, null, null, true));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level21_ind1"), "message", 80));
+               this.units?.push?.(new Unit(this, "UA_evil", undefined, undefined, undefined, undefined, undefined, undefined, undefined, true));
+               this.units?.push?.(new Unit(this, "UA_evil", undefined, undefined, undefined, undefined, undefined, undefined, undefined, true));
+               this.units?.push?.(new Unit(this, "UA_evil", undefined, undefined, undefined, undefined, undefined, undefined, undefined, true));
+               this.units?.push?.(new Unit(this, "UA_evil", undefined, undefined, undefined, undefined, undefined, undefined, undefined, true));
+               this.units?.push?.(new Unit(this, "UA_evil", undefined, undefined, undefined, undefined, undefined, undefined, undefined, true));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level21_ind1"), "message", 80));
                this.cash = 2000;
                this.cashOppo = 999999900;
                this.jukebox = 2;
@@ -5907,22 +5907,22 @@
                this.buildings?.push?.(new Building(this, "BD_evil", 13, 13));
                this.units?.push?.(new Unit(this, "UD_evil", 17, 11, 0.5));
                this.units?.push?.(new Unit(this, "UD_evil", 16, 12, 0.5));
-               this.units?.push?.(new Unit(this, "UB_evil", null, null, null, null, null, null, null, true));
-               this.units?.push?.(new Unit(this, "UB_evil", null, null, null, null, null, null, null, true));
-               this.units?.push?.(new Unit(this, "UB_evil", null, null, null, null, null, null, null, true));
-               this.units?.push?.(new Unit(this, "UB_evil", null, null, null, null, null, null, null, true));
-               this.units?.push?.(new Unit(this, "UB_evil", null, null, null, null, null, null, null, true));
-               this.units?.push?.(new Unit(this, "UA_evil", null, null, null, null, null, null, null, true));
-               this.units?.push?.(new Unit(this, "UA_evil", null, null, null, null, null, null, null, true));
+               this.units?.push?.(new Unit(this, "UB_evil", undefined, undefined, undefined, undefined, undefined, undefined, undefined, true));
+               this.units?.push?.(new Unit(this, "UB_evil", undefined, undefined, undefined, undefined, undefined, undefined, undefined, true));
+               this.units?.push?.(new Unit(this, "UB_evil", undefined, undefined, undefined, undefined, undefined, undefined, undefined, true));
+               this.units?.push?.(new Unit(this, "UB_evil", undefined, undefined, undefined, undefined, undefined, undefined, undefined, true));
+               this.units?.push?.(new Unit(this, "UB_evil", undefined, undefined, undefined, undefined, undefined, undefined, undefined, true));
+               this.units?.push?.(new Unit(this, "UA_evil", undefined, undefined, undefined, undefined, undefined, undefined, undefined, true));
+               this.units?.push?.(new Unit(this, "UA_evil", undefined, undefined, undefined, undefined, undefined, undefined, undefined, true));
                this.units?.push?.(new Unit(this, "UI_evil", 19, 13, 5));
                this.units?.push?.(new Unit(this, "UI_evil", 18, 14, 5));
-               this.units?.push?.(new Unit(this, "UI_good", 19, 14, 0.5, null, null, null, "UF_good"));
+               this.units?.push?.(new Unit(this, "UI_good", 19, 14, 0.5, undefined, undefined, undefined, "UF_good"));
                this.units?.push?.(new Unit(this, "UI_evil", 17, 15, 5));
                this.units?.push?.(new Unit(this, "UI_evil", 18, 15, 5));
                this.units?.push?.(new Unit(this, "UI_evil", 19, 15, 5));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level22_ind1"), "message"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level22_ind2"), "message", 240));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level22_ind2"), "message", 1));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level22_ind1"), "message"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level22_ind2"), "message", 240));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level22_ind2"), "message", 1));
                this.arena?.shroud?.reveal?.(5, 6, 4);
                this.cash = 2000;
                this.cashOppo = 30000;
@@ -5937,12 +5937,12 @@
                this.buildings?.push?.(new Building(this, "BD_good", 9, 9));
                this.units?.push?.(_loc2_ = new Unit(this, "UE_good", 8, 10, 0.5));
                this.buildings?.push?.(new Building(this, "BF_evil", 1, 29));
-               this.units?.push?.(new Unit(this, "UG_evil", null, null, null, null, null, null, null, true));
-               this.units?.push?.(new Unit(this, "UG_evil", null, null, null, null, null, null, null, true));
-               this.units?.push?.(new Unit(this, "UG_evil", null, null, null, null, null, null, null, true));
-               this.units?.push?.(new Unit(this, "UG_evil", null, null, null, null, null, null, null, true));
-               this.units?.push?.(new Unit(this, "UI_evil", 8, 18, 5, null, null, null, 500, true));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level23_ind1"), "message"));
+               this.units?.push?.(new Unit(this, "UG_evil", undefined, undefined, undefined, undefined, undefined, undefined, undefined, true));
+               this.units?.push?.(new Unit(this, "UG_evil", undefined, undefined, undefined, undefined, undefined, undefined, undefined, true));
+               this.units?.push?.(new Unit(this, "UG_evil", undefined, undefined, undefined, undefined, undefined, undefined, undefined, true));
+               this.units?.push?.(new Unit(this, "UG_evil", undefined, undefined, undefined, undefined, undefined, undefined, undefined, true));
+               this.units?.push?.(new Unit(this, "UI_evil", 8, 18, 5, undefined, undefined, undefined, 500, true));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level23_ind1"), "message"));
                __as.set(this.camera, "focus", _loc2_);
                this.cash = 1000;
                this.cashOppo = 999999900;
@@ -5951,18 +5951,18 @@
             if(this.level == 24)
             {
                this.units?.push?.(_loc2_ = new Unit(this, "UE_good", 15, 28, 0));
-               this.units?.push?.(new Unit(this, "UI_good", 6, 22, 5, null, null, null, "UA_good"));
-               this.units?.push?.(new Unit(this, "UI_good", 12, 22, 5, null, null, null, "UA_good"));
-               this.units?.push?.(new Unit(this, "UI_good", 15, 5, 5, null, null, null, "UF_good"));
-               this.units?.push?.(new Unit(this, "UI_good", 3, 11, 5, null, null, null, "UB_good"));
+               this.units?.push?.(new Unit(this, "UI_good", 6, 22, 5, undefined, undefined, undefined, "UA_good"));
+               this.units?.push?.(new Unit(this, "UI_good", 12, 22, 5, undefined, undefined, undefined, "UA_good"));
+               this.units?.push?.(new Unit(this, "UI_good", 15, 5, 5, undefined, undefined, undefined, "UF_good"));
+               this.units?.push?.(new Unit(this, "UI_good", 3, 11, 5, undefined, undefined, undefined, "UB_good"));
                this.buildings?.push?.(new Building(this, "BC_evil", 1, 29));
-               this.units?.push?.(new Unit(this, "UF_evil", 12, 3, 0.5, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UE_evil", 6, 11, 0.5, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UE_evil", 21, 14, 0.625, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UE_evil", 6, 18, 0.625, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UE_evil", 21, 25, 0.75, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_evil", 3, 25, 0.25, null, null, "still"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level24_ind1"), "message"));
+               this.units?.push?.(new Unit(this, "UF_evil", 12, 3, 0.5, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UE_evil", 6, 11, 0.5, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UE_evil", 21, 14, 0.625, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UE_evil", 6, 18, 0.625, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UE_evil", 21, 25, 0.75, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_evil", 3, 25, 0.25, undefined, undefined, "still"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level24_ind1"), "message"));
                this.arena?.shroud?.reveal?.(15, 30, 4);
                __as.set(this.camera, "focus", _loc2_);
                this.cash = 0;
@@ -5973,29 +5973,29 @@
             {
                this.buildings?.push?.(new Building(this, "BA_good", -10, -10));
                this.units?.push?.(_loc2_ = new Unit(this, "UA_evil", 15, 28, 0.0625));
-               this.units?.push?.(new Unit(this, "UI_evil", 23, 27, 0.5, null, null, null, "UA_evil"));
-               this.units?.push?.(new Unit(this, "UI_good", 4, 26, 0.5, null, null, null, "UE_evil"));
-               this.units?.push?.(new Unit(this, "UI_evil", 7, 13, 0.5, null, null, null, "UB_evil"));
-               this.units?.push?.(new Unit(this, "UI_evil", 22, 5, 0.5, null, null, null, "UB_evil"));
-               this.units?.push?.(new Unit(this, "UI_good", 28, 26, 0.5, null, null, null, "UC_evil"));
-               this.units?.push?.(new Unit(this, "UI_good", 29, 14, 0.5, null, null, null, "UE_evil"));
-               this.units?.push?.(new Unit(this, "UI_good", 17, 21, 0.5, null, null, null, "UC_evil"));
-               this.units?.push?.(new Unit(this, "UI_evil", 28, 7, 0.5, null, null, null, "UA_evil"));
-               this.units?.push?.(new Unit(this, "UI_evil", 29, 7, 0.5, null, null, null, "UA_evil"));
-               this.units?.push?.(new Unit(this, "UI_evil", 29, 15, 0.5, null, null, null, "UA_evil"));
-               this.units?.push?.(new Unit(this, "UI_evil", 28, 15, 0.5, null, null, null, "UA_evil"));
-               this.units?.push?.(new Unit(this, "UI_evil", 4, 5, 0.5, null, null, null, 1000));
-               this.units?.push?.(new Unit(this, "UE_good", 11, 17, 0.5, null, null, "still", 10000));
-               this.units?.push?.(new Unit(this, "UA_good", 27, 19, 0.5625, null, null, "still", 10000));
-               this.units?.push?.(new Unit(this, "UA_good", 27, 24, 0.875, null, null, "still", 10000));
-               this.units?.push?.(new Unit(this, "UA_good", 17, 15, 0, null, null, "roam", 2));
-               this.units?.push?.(new Unit(this, "UA_good", 17, 20, 0, null, null, "roam", 2));
-               this.units?.push?.(new Unit(this, "UA_good", 5, 26, 0.25, null, null, "still", 10000));
-               this.units?.push?.(new Unit(this, "UC_good", 21, 14, 0.4375, null, null, "still", 10000));
-               this.units?.push?.(new Unit(this, "UC_good", 23, 14, 0.5625, null, null, "still", 10000));
-               this.units?.push?.(new Unit(this, "UC_good", 29, 9, 0, null, null, "roam", 6));
-               this.units?.push?.(new Unit(this, "UF_good", 10, 5, 0.25, null, null, "still", 10000));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level26_ind1"), "message", 120));
+               this.units?.push?.(new Unit(this, "UI_evil", 23, 27, 0.5, undefined, undefined, undefined, "UA_evil"));
+               this.units?.push?.(new Unit(this, "UI_good", 4, 26, 0.5, undefined, undefined, undefined, "UE_evil"));
+               this.units?.push?.(new Unit(this, "UI_evil", 7, 13, 0.5, undefined, undefined, undefined, "UB_evil"));
+               this.units?.push?.(new Unit(this, "UI_evil", 22, 5, 0.5, undefined, undefined, undefined, "UB_evil"));
+               this.units?.push?.(new Unit(this, "UI_good", 28, 26, 0.5, undefined, undefined, undefined, "UC_evil"));
+               this.units?.push?.(new Unit(this, "UI_good", 29, 14, 0.5, undefined, undefined, undefined, "UE_evil"));
+               this.units?.push?.(new Unit(this, "UI_good", 17, 21, 0.5, undefined, undefined, undefined, "UC_evil"));
+               this.units?.push?.(new Unit(this, "UI_evil", 28, 7, 0.5, undefined, undefined, undefined, "UA_evil"));
+               this.units?.push?.(new Unit(this, "UI_evil", 29, 7, 0.5, undefined, undefined, undefined, "UA_evil"));
+               this.units?.push?.(new Unit(this, "UI_evil", 29, 15, 0.5, undefined, undefined, undefined, "UA_evil"));
+               this.units?.push?.(new Unit(this, "UI_evil", 28, 15, 0.5, undefined, undefined, undefined, "UA_evil"));
+               this.units?.push?.(new Unit(this, "UI_evil", 4, 5, 0.5, undefined, undefined, undefined, 1000));
+               this.units?.push?.(new Unit(this, "UE_good", 11, 17, 0.5, undefined, undefined, "still", 10000));
+               this.units?.push?.(new Unit(this, "UA_good", 27, 19, 0.5625, undefined, undefined, "still", 10000));
+               this.units?.push?.(new Unit(this, "UA_good", 27, 24, 0.875, undefined, undefined, "still", 10000));
+               this.units?.push?.(new Unit(this, "UA_good", 17, 15, 0, undefined, undefined, "roam", 2));
+               this.units?.push?.(new Unit(this, "UA_good", 17, 20, 0, undefined, undefined, "roam", 2));
+               this.units?.push?.(new Unit(this, "UA_good", 5, 26, 0.25, undefined, undefined, "still", 10000));
+               this.units?.push?.(new Unit(this, "UC_good", 21, 14, 0.4375, undefined, undefined, "still", 10000));
+               this.units?.push?.(new Unit(this, "UC_good", 23, 14, 0.5625, undefined, undefined, "still", 10000));
+               this.units?.push?.(new Unit(this, "UC_good", 29, 9, 0, undefined, undefined, "roam", 6));
+               this.units?.push?.(new Unit(this, "UF_good", 10, 5, 0.25, undefined, undefined, "still", 10000));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level26_ind1"), "message", 120));
                __as.set(this.camera, "focus", _loc2_);
                this.cash = 0;
                this.cashOppo = 50000;
@@ -6046,40 +6046,40 @@
                this.rejig?.(_loc2_);
                this.units?.push?.(_loc2_ = new Unit(this, "UA_evil", 9, 3, 0.5));
                this.rejig?.(_loc2_);
-               this.units?.push?.(_loc2_ = new Unit(this, "UF_good", 2, 9, 0, null, null, "still", 10000));
+               this.units?.push?.(_loc2_ = new Unit(this, "UF_good", 2, 9, 0, undefined, undefined, "still", 10000));
                this.rejig?.(_loc2_);
-               this.units?.push?.(_loc2_ = new Unit(this, "UC_good", 3, 9, 0, null, null, "still", 10000));
+               this.units?.push?.(_loc2_ = new Unit(this, "UC_good", 3, 9, 0, undefined, undefined, "still", 10000));
                this.rejig?.(_loc2_);
-               this.units?.push?.(_loc2_ = new Unit(this, "UE_good", 4, 9, 0, null, null, "still", 10000));
+               this.units?.push?.(_loc2_ = new Unit(this, "UE_good", 4, 9, 0, undefined, undefined, "still", 10000));
                this.rejig?.(_loc2_);
-               this.units?.push?.(_loc2_ = new Unit(this, "UD_good", 5, 9, 0, null, null, "still", 10000));
+               this.units?.push?.(_loc2_ = new Unit(this, "UD_good", 5, 9, 0, undefined, undefined, "still", 10000));
                this.rejig?.(_loc2_);
                __as.set(_loc2_?.stats, "miner", __as.set(_loc2_?.stats, "bait", __as.set(_loc2_?.nav, "path", __as.set(_loc2_?.nav, "npath", false))));
-               this.units?.push?.(_loc2_ = new Unit(this, "UF_good", 6, 9, 0, null, null, "still", 10000));
+               this.units?.push?.(_loc2_ = new Unit(this, "UF_good", 6, 9, 0, undefined, undefined, "still", 10000));
                this.rejig?.(_loc2_);
-               this.units?.push?.(_loc2_ = new Unit(this, "UE_good", 7, 9, 0, null, null, "still", 10000));
+               this.units?.push?.(_loc2_ = new Unit(this, "UE_good", 7, 9, 0, undefined, undefined, "still", 10000));
                this.rejig?.(_loc2_);
-               this.units?.push?.(_loc2_ = new Unit(this, "UC_good", 8, 9, 0, null, null, "still", 10000));
+               this.units?.push?.(_loc2_ = new Unit(this, "UC_good", 8, 9, 0, undefined, undefined, "still", 10000));
                this.rejig?.(_loc2_);
-               this.units?.push?.(_loc2_ = new Unit(this, "UF_good", 9, 9, 0, null, null, "still", 10000));
+               this.units?.push?.(_loc2_ = new Unit(this, "UF_good", 9, 9, 0, undefined, undefined, "still", 10000));
                this.rejig?.(_loc2_);
-               this.units?.push?.(_loc2_ = new Unit(this, "UA_good", 2, 8, 0, null, null, "still", 10000));
+               this.units?.push?.(_loc2_ = new Unit(this, "UA_good", 2, 8, 0, undefined, undefined, "still", 10000));
                this.rejig?.(_loc2_);
-               this.units?.push?.(_loc2_ = new Unit(this, "UA_good", 3, 8, 0, null, null, "still", 10000));
+               this.units?.push?.(_loc2_ = new Unit(this, "UA_good", 3, 8, 0, undefined, undefined, "still", 10000));
                this.rejig?.(_loc2_);
-               this.units?.push?.(_loc2_ = new Unit(this, "UA_good", 4, 8, 0, null, null, "still", 10000));
+               this.units?.push?.(_loc2_ = new Unit(this, "UA_good", 4, 8, 0, undefined, undefined, "still", 10000));
                this.rejig?.(_loc2_);
-               this.units?.push?.(_loc2_ = new Unit(this, "UA_good", 5, 8, 0, null, null, "still", 10000));
+               this.units?.push?.(_loc2_ = new Unit(this, "UA_good", 5, 8, 0, undefined, undefined, "still", 10000));
                this.rejig?.(_loc2_);
-               this.units?.push?.(_loc2_ = new Unit(this, "UA_good", 6, 8, 0, null, null, "still", 10000));
+               this.units?.push?.(_loc2_ = new Unit(this, "UA_good", 6, 8, 0, undefined, undefined, "still", 10000));
                this.rejig?.(_loc2_);
-               this.units?.push?.(_loc2_ = new Unit(this, "UA_good", 7, 8, 0, null, null, "still", 10000));
+               this.units?.push?.(_loc2_ = new Unit(this, "UA_good", 7, 8, 0, undefined, undefined, "still", 10000));
                this.rejig?.(_loc2_);
-               this.units?.push?.(_loc2_ = new Unit(this, "UA_good", 8, 8, 0, null, null, "still", 10000));
+               this.units?.push?.(_loc2_ = new Unit(this, "UA_good", 8, 8, 0, undefined, undefined, "still", 10000));
                this.rejig?.(_loc2_);
-               this.units?.push?.(_loc2_ = new Unit(this, "UA_good", 9, 8, 0, null, null, "still", 10000));
+               this.units?.push?.(_loc2_ = new Unit(this, "UA_good", 9, 8, 0, undefined, undefined, "still", 10000));
                this.rejig?.(_loc2_);
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level27_ind1"), "message", 120));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level27_ind1"), "message", 120));
                __as.set(this.camera, "focus", _loc3_);
                this.cash = 0;
                this.cashOppo = 0;
@@ -6105,35 +6105,35 @@
                this.buildings?.push?.(new Building(this, "BE_good", 16, 5));
                this.buildings?.push?.(new Building(this, "BG_good", 29, 27));
                this.buildings?.push?.(new Building(this, "BL_good", 19, 20));
-               this.units?.push?.(new Unit(this, "UA_good", 25, 8, 0, null, null, _loc3_, null));
-               this.units?.push?.(new Unit(this, "UA_good", 28, 8, 0, null, null, _loc3_, null));
-               this.units?.push?.(new Unit(this, "UA_good", 26, 9, 0, null, null, _loc3_, null));
-               this.units?.push?.(new Unit(this, "UA_good", 28, 9, 0, null, null, _loc3_, null));
-               this.units?.push?.(new Unit(this, "UA_good", 26, 10, 0, null, null, _loc3_, null));
-               this.units?.push?.(new Unit(this, "UA_good", 27, 10, 0, null, null, _loc3_, null));
-               this.units?.push?.(new Unit(this, "UA_good", 28, 10, 0, null, null, _loc3_, null));
-               this.units?.push?.(new Unit(this, "UC_good", 19, 3, 0.25, null, null, "still", random?.(1000)));
-               this.units?.push?.(new Unit(this, "UC_good", 18, 29, 0, null, null, "still", random?.(1000)));
-               this.units?.push?.(new Unit(this, "UA_good", 8, 21, 0, null, null, "still", random?.(1000)));
-               this.units?.push?.(new Unit(this, "UA_good", 5, 5, 0, null, null, "still", random?.(1000)));
-               this.units?.push?.(new Unit(this, "UA_good", 21, 26, 0, null, null, "still", random?.(1000)));
-               this.units?.push?.(new Unit(this, "UE_good", 26, 28, 0, null, null, _loc3_));
-               this.units?.push?.(new Unit(this, "UC_good", 26, 13, 0.125, null, null, "still", 10000));
-               this.units?.push?.(new Unit(this, "UC_good", 29, 13, 0.875, null, null, "still", 10000));
-               this.units?.push?.(new Unit(this, "UC_good", 27, 25, 0.1875, null, null, "roam", 2));
-               this.units?.push?.(new Unit(this, "UC_good", 28, 25, 0.8666666666666667, null, null, "roam", 2));
-               this.units?.push?.(new Unit(this, "UC_good", 2, 15, 0.1875, null, null, "still", 10000));
-               this.units?.push?.(new Unit(this, "UC_good", 4, 15, 0.0625, null, null, "still", 10000));
-               this.units?.push?.(new Unit(this, "UC_good", 6, 15, 0.9375, null, null, "still", 10000));
-               this.units?.push?.(new Unit(this, "UC_good", 8, 15, 0.8125, null, null, "still", 10000));
-               this.units?.push?.(new Unit(this, "UR_good", 16, 27, 0, null, null, "roam", 6));
-               this.units?.push?.(new Unit(this, "UP_good", 13, 20, 0, null, null, "roam", 10));
-               this.units?.push?.(new Unit(this, "UE_good", 16, 5, 0, null, null, "roam", 6));
-               this.units?.push?.(new Unit(this, "UI_good", 24, 17, 0.5, null, null, null, 1500));
-               this.units?.push?.(new Unit(this, "UI_good", 18, 4, 0.5, null, null, null, 1500));
-               this.units?.push?.(new Unit(this, "UI_good", 29, 27, 0.5, null, null, null, 1500));
-               this.units?.push?.(new Unit(this, "UI_good", 3, 10, 0.5, null, null, null, 1500));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level28_ind1"), "message", 120));
+               this.units?.push?.(new Unit(this, "UA_good", 25, 8, 0, undefined, undefined, _loc3_, undefined));
+               this.units?.push?.(new Unit(this, "UA_good", 28, 8, 0, undefined, undefined, _loc3_, undefined));
+               this.units?.push?.(new Unit(this, "UA_good", 26, 9, 0, undefined, undefined, _loc3_, undefined));
+               this.units?.push?.(new Unit(this, "UA_good", 28, 9, 0, undefined, undefined, _loc3_, undefined));
+               this.units?.push?.(new Unit(this, "UA_good", 26, 10, 0, undefined, undefined, _loc3_, undefined));
+               this.units?.push?.(new Unit(this, "UA_good", 27, 10, 0, undefined, undefined, _loc3_, undefined));
+               this.units?.push?.(new Unit(this, "UA_good", 28, 10, 0, undefined, undefined, _loc3_, undefined));
+               this.units?.push?.(new Unit(this, "UC_good", 19, 3, 0.25, undefined, undefined, "still", random?.(1000)));
+               this.units?.push?.(new Unit(this, "UC_good", 18, 29, 0, undefined, undefined, "still", random?.(1000)));
+               this.units?.push?.(new Unit(this, "UA_good", 8, 21, 0, undefined, undefined, "still", random?.(1000)));
+               this.units?.push?.(new Unit(this, "UA_good", 5, 5, 0, undefined, undefined, "still", random?.(1000)));
+               this.units?.push?.(new Unit(this, "UA_good", 21, 26, 0, undefined, undefined, "still", random?.(1000)));
+               this.units?.push?.(new Unit(this, "UE_good", 26, 28, 0, undefined, undefined, _loc3_));
+               this.units?.push?.(new Unit(this, "UC_good", 26, 13, 0.125, undefined, undefined, "still", 10000));
+               this.units?.push?.(new Unit(this, "UC_good", 29, 13, 0.875, undefined, undefined, "still", 10000));
+               this.units?.push?.(new Unit(this, "UC_good", 27, 25, 0.1875, undefined, undefined, "roam", 2));
+               this.units?.push?.(new Unit(this, "UC_good", 28, 25, 0.8666666666666667, undefined, undefined, "roam", 2));
+               this.units?.push?.(new Unit(this, "UC_good", 2, 15, 0.1875, undefined, undefined, "still", 10000));
+               this.units?.push?.(new Unit(this, "UC_good", 4, 15, 0.0625, undefined, undefined, "still", 10000));
+               this.units?.push?.(new Unit(this, "UC_good", 6, 15, 0.9375, undefined, undefined, "still", 10000));
+               this.units?.push?.(new Unit(this, "UC_good", 8, 15, 0.8125, undefined, undefined, "still", 10000));
+               this.units?.push?.(new Unit(this, "UR_good", 16, 27, 0, undefined, undefined, "roam", 6));
+               this.units?.push?.(new Unit(this, "UP_good", 13, 20, 0, undefined, undefined, "roam", 10));
+               this.units?.push?.(new Unit(this, "UE_good", 16, 5, 0, undefined, undefined, "roam", 6));
+               this.units?.push?.(new Unit(this, "UI_good", 24, 17, 0.5, undefined, undefined, undefined, 1500));
+               this.units?.push?.(new Unit(this, "UI_good", 18, 4, 0.5, undefined, undefined, undefined, 1500));
+               this.units?.push?.(new Unit(this, "UI_good", 29, 27, 0.5, undefined, undefined, undefined, 1500));
+               this.units?.push?.(new Unit(this, "UI_good", 3, 10, 0.5, undefined, undefined, undefined, 1500));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level28_ind1"), "message", 120));
                __as.set(this.camera, "focus", _loc3_);
                this.cash = 0;
                this.cashOppo = 999999900;
@@ -6167,37 +6167,37 @@
                this.rejig?.(_loc2_, 0.2, 0.8);
                this.units?.push?.(_loc2_ = new Unit(this, "UN_evil", 11, 13, 0.625));
                this.rejig?.(_loc2_, 0.4, 1);
-               this.units?.push?.(new Unit(this, "UO_evil", 2, 7, null, null, null, null, "powerup"));
-               this.units?.push?.(new Unit(this, "UO_evil", 3, 17, null, null, null, null, "powerup"));
-               this.units?.push?.(new Unit(this, "UO_evil", 15, 3, null, null, null, null, "powerup"));
-               this.units?.push?.(new Unit(this, "UO_evil", 17, 5, null, null, null, null, "powerup"));
-               this.units?.push?.(new Unit(this, "UO_evil", 21, 13, null, null, null, null, "powerup"));
-               this.units?.push?.(new Unit(this, "UO_evil", 12, 21, null, null, null, null, "powerup"));
-               this.units?.push?.(new Unit(this, "UO_evil", 11, 10, null, null, null, null, "powerup"));
+               this.units?.push?.(new Unit(this, "UO_evil", 2, 7, undefined, undefined, undefined, undefined, "powerup"));
+               this.units?.push?.(new Unit(this, "UO_evil", 3, 17, undefined, undefined, undefined, undefined, "powerup"));
+               this.units?.push?.(new Unit(this, "UO_evil", 15, 3, undefined, undefined, undefined, undefined, "powerup"));
+               this.units?.push?.(new Unit(this, "UO_evil", 17, 5, undefined, undefined, undefined, undefined, "powerup"));
+               this.units?.push?.(new Unit(this, "UO_evil", 21, 13, undefined, undefined, undefined, undefined, "powerup"));
+               this.units?.push?.(new Unit(this, "UO_evil", 12, 21, undefined, undefined, undefined, undefined, "powerup"));
+               this.units?.push?.(new Unit(this, "UO_evil", 11, 10, undefined, undefined, undefined, undefined, "powerup"));
                this.buildings?.push?.(new Building(this, "BD_evil", 17, 11, this.parent?.oppo));
                this.buildings?.push?.(new Building(this, "BB_evil", 15, 19, this.parent?.oppo));
                this.buildings?.push?.(new Building(this, "BD_good", 6, 11, this.parent?.oppo));
                this.buildings?.push?.(new Building(this, "BB_good", 8, 19, this.parent?.oppo));
-               this.units?.push?.(new Unit(this, "UF_good", 6, 5, 0.4375, this.parent?.oppo, null, "still"));
-               this.units?.push?.(new Unit(this, "UC_good", 5, 15, 0.4375, this.parent?.oppo, null, "roam", 4));
-               this.units?.push?.(new Unit(this, "UC_good", 5, 15, 0.4375, this.parent?.oppo, null, "roam", 4));
-               this.units?.push?.(new Unit(this, "UC_good", 5, 15, 0.4375, this.parent?.oppo, null, "roam", 4));
-               this.units?.push?.(new Unit(this, "UA_good", 11, 5, 0.4375, this.parent?.oppo, null, "roam", 2));
-               this.units?.push?.(new Unit(this, "UA_evil", 13, 5, 0.5625, this.parent?.oppo, null, "roam", 2));
-               this.units?.push?.(new Unit(this, "UE_good", 9, 19, 0.25, this.parent?.oppo, null, "still"));
-               this.units?.push?.(new Unit(this, "UE_evil", 14, 19, 0.75, this.parent?.oppo, null, "still"));
-               this.units?.push?.(new Unit(this, "UF_evil", 21, 16, 0.8125, this.parent?.oppo, null, "still"));
-               this.units?.push?.(new Unit(this, "UF_evil", 18, 15, 0.9375, this.parent?.oppo, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_evil", 19, 7, 0.125, this.parent?.oppo, null, "roam", 4));
-               this.units?.push?.(new Unit(this, "UA_evil", 19, 7, 0.125, this.parent?.oppo, null, "roam", 4));
-               this.units?.push?.(new Unit(this, "UA_evil", 19, 7, 0.125, this.parent?.oppo, null, "roam", 4));
-               this.units?.push?.(new Unit(this, "UC_evil", 20, 11, 0.125, this.parent?.oppo, null, "roam", 6));
-               this.units?.push?.(new Unit(this, "UC_evil", 20, 11, 0.125, this.parent?.oppo, null, "roam", 6));
-               this.units?.push?.(new Unit(this, "UC_evil", 20, 11, 0.125, this.parent?.oppo, null, "roam", 6));
-               this.units?.push?.(new Unit(this, "UA_good", 22, 22, 0.125, null, null, "still"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level29_ind1"), "message"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level29_ind2"), "message", 120));
-               this.indicators?.push?.(new Indicator(this, _loc3_, null, null, "focus"));
+               this.units?.push?.(new Unit(this, "UF_good", 6, 5, 0.4375, this.parent?.oppo, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UC_good", 5, 15, 0.4375, this.parent?.oppo, undefined, "roam", 4));
+               this.units?.push?.(new Unit(this, "UC_good", 5, 15, 0.4375, this.parent?.oppo, undefined, "roam", 4));
+               this.units?.push?.(new Unit(this, "UC_good", 5, 15, 0.4375, this.parent?.oppo, undefined, "roam", 4));
+               this.units?.push?.(new Unit(this, "UA_good", 11, 5, 0.4375, this.parent?.oppo, undefined, "roam", 2));
+               this.units?.push?.(new Unit(this, "UA_evil", 13, 5, 0.5625, this.parent?.oppo, undefined, "roam", 2));
+               this.units?.push?.(new Unit(this, "UE_good", 9, 19, 0.25, this.parent?.oppo, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UE_evil", 14, 19, 0.75, this.parent?.oppo, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UF_evil", 21, 16, 0.8125, this.parent?.oppo, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UF_evil", 18, 15, 0.9375, this.parent?.oppo, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_evil", 19, 7, 0.125, this.parent?.oppo, undefined, "roam", 4));
+               this.units?.push?.(new Unit(this, "UA_evil", 19, 7, 0.125, this.parent?.oppo, undefined, "roam", 4));
+               this.units?.push?.(new Unit(this, "UA_evil", 19, 7, 0.125, this.parent?.oppo, undefined, "roam", 4));
+               this.units?.push?.(new Unit(this, "UC_evil", 20, 11, 0.125, this.parent?.oppo, undefined, "roam", 6));
+               this.units?.push?.(new Unit(this, "UC_evil", 20, 11, 0.125, this.parent?.oppo, undefined, "roam", 6));
+               this.units?.push?.(new Unit(this, "UC_evil", 20, 11, 0.125, this.parent?.oppo, undefined, "roam", 6));
+               this.units?.push?.(new Unit(this, "UA_good", 22, 22, 0.125, undefined, undefined, "still"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level29_ind1"), "message"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level29_ind2"), "message", 120));
+               this.indicators?.push?.(new Indicator(this, _loc3_, undefined, undefined, "focus"));
                __as.set(this.camera, "focus", _loc3_);
                this.cash = 0;
                this.cashOppo = 999999900;
@@ -6211,49 +6211,49 @@
                this.units?.push?.(_loc4_ = new Unit(this, "UP_good", 11, 7, 0.625));
                this.units?.push?.(new Unit(this, "UB_good", 6, 3, 0.3125));
                this.units?.push?.(new Unit(this, "UB_good", 9, 4, 0.75));
-               this.units?.push?.(new Unit(this, "UI_good", 8, 8, null, null, null, null, 500));
-               this.units?.push?.(new Unit(this, "UI_good", 9, 6, null, null, null, null, 500));
-               this.units?.push?.(new Unit(this, "UI_good", 7, 5, null, null, null, null, 500));
-               this.units?.push?.(new Unit(this, "UI_good", 2, 26, null, null, null, null, 500));
-               this.units?.push?.(new Unit(this, "UI_good", 10, 29, null, null, null, null, 500, true));
-               this.units?.push?.(new Unit(this, "UI_good", 6, 29, null, null, null, null, 500));
-               this.units?.push?.(new Unit(this, "UI_good", 14, 18, null, null, null, null, 500));
-               this.units?.push?.(new Unit(this, "UI_good", 14, 28, null, null, null, null, 1000));
-               this.units?.push?.(new Unit(this, "UI_good", 1, 17, null, null, null, null, 500));
-               this.units?.push?.(new Unit(this, "UI_good", 14, 7, null, null, null, null, 500));
-               this.units?.push?.(new Unit(this, "UI_good", 11, 26, null, null, null, null, 1000));
-               this.units?.push?.(new Unit(this, "UI_good", 2, 8, null, null, null, null, 500));
-               this.units?.push?.(new Unit(this, "UI_good", 6, 18, null, null, null, null, 500));
-               this.units?.push?.(new Unit(this, "UI_good", 2, 29, null, null, null, null, 500));
-               this.units?.push?.(new Unit(this, "UA_evil", 8, 18, 0, null, null, _loc3_, null));
-               this.units?.push?.(new Unit(this, "UA_evil", 8, 16, 0, null, null, _loc3_, null));
-               this.units?.push?.(new Unit(this, "UA_evil", 8, 17, 0, null, null, _loc3_, null));
-               this.units?.push?.(new Unit(this, "UA_evil", 1, 19, 0, null, null, _loc3_, null));
-               this.units?.push?.(new Unit(this, "UA_evil", 2, 19, 0, null, null, _loc3_, null));
-               this.units?.push?.(new Unit(this, "UA_evil", 3, 19, 0, null, null, _loc3_, null));
-               this.units?.push?.(new Unit(this, "UA_evil", 14, 8, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_evil", 15, 7, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_evil", 1, 15, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_evil", 9, 29, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_evil", 14, 12, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_evil", 1, 29, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UC_evil", 3, 8, null, null, null, "roam", 4));
-               this.units?.push?.(new Unit(this, "UE_evil", 8, 17, null, null, null, "roam", 6));
-               this.units?.push?.(new Unit(this, "UC_evil", 2, 26, null, null, null, "roam", 4));
-               this.units?.push?.(new Unit(this, "UC_evil", 14, 28, null, null, null, "roam", 4));
-               this.units?.push?.(new Unit(this, "UP_evil", 8, 26, null, null, null, "roam", 4));
-               this.units?.push?.(_loc5_ = new Unit(this, "UP_evil", 13, 18, 0.5625, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UP_evil", 3, 18, 0.125, null, null, "still"));
-               this.indicators?.push?.(new Indicator(this, this.arena?.tileHandles?._9_8, null, null, "focus"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level31_ind1"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, _loc4_, null, null, "focus"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level31_ind2"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, _loc5_, null, null, "focus"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level31_ind3"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, this.arena?.tileHandles?._8_18, null, null, "focus"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level31_ind4"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, _loc4_, null, null, "focus"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level31_ind4"), "message"));
+               this.units?.push?.(new Unit(this, "UI_good", 8, 8, undefined, undefined, undefined, undefined, 500));
+               this.units?.push?.(new Unit(this, "UI_good", 9, 6, undefined, undefined, undefined, undefined, 500));
+               this.units?.push?.(new Unit(this, "UI_good", 7, 5, undefined, undefined, undefined, undefined, 500));
+               this.units?.push?.(new Unit(this, "UI_good", 2, 26, undefined, undefined, undefined, undefined, 500));
+               this.units?.push?.(new Unit(this, "UI_good", 10, 29, undefined, undefined, undefined, undefined, 500, true));
+               this.units?.push?.(new Unit(this, "UI_good", 6, 29, undefined, undefined, undefined, undefined, 500));
+               this.units?.push?.(new Unit(this, "UI_good", 14, 18, undefined, undefined, undefined, undefined, 500));
+               this.units?.push?.(new Unit(this, "UI_good", 14, 28, undefined, undefined, undefined, undefined, 1000));
+               this.units?.push?.(new Unit(this, "UI_good", 1, 17, undefined, undefined, undefined, undefined, 500));
+               this.units?.push?.(new Unit(this, "UI_good", 14, 7, undefined, undefined, undefined, undefined, 500));
+               this.units?.push?.(new Unit(this, "UI_good", 11, 26, undefined, undefined, undefined, undefined, 1000));
+               this.units?.push?.(new Unit(this, "UI_good", 2, 8, undefined, undefined, undefined, undefined, 500));
+               this.units?.push?.(new Unit(this, "UI_good", 6, 18, undefined, undefined, undefined, undefined, 500));
+               this.units?.push?.(new Unit(this, "UI_good", 2, 29, undefined, undefined, undefined, undefined, 500));
+               this.units?.push?.(new Unit(this, "UA_evil", 8, 18, 0, undefined, undefined, _loc3_, undefined));
+               this.units?.push?.(new Unit(this, "UA_evil", 8, 16, 0, undefined, undefined, _loc3_, undefined));
+               this.units?.push?.(new Unit(this, "UA_evil", 8, 17, 0, undefined, undefined, _loc3_, undefined));
+               this.units?.push?.(new Unit(this, "UA_evil", 1, 19, 0, undefined, undefined, _loc3_, undefined));
+               this.units?.push?.(new Unit(this, "UA_evil", 2, 19, 0, undefined, undefined, _loc3_, undefined));
+               this.units?.push?.(new Unit(this, "UA_evil", 3, 19, 0, undefined, undefined, _loc3_, undefined));
+               this.units?.push?.(new Unit(this, "UA_evil", 14, 8, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_evil", 15, 7, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_evil", 1, 15, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_evil", 9, 29, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_evil", 14, 12, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_evil", 1, 29, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UC_evil", 3, 8, undefined, undefined, undefined, "roam", 4));
+               this.units?.push?.(new Unit(this, "UE_evil", 8, 17, undefined, undefined, undefined, "roam", 6));
+               this.units?.push?.(new Unit(this, "UC_evil", 2, 26, undefined, undefined, undefined, "roam", 4));
+               this.units?.push?.(new Unit(this, "UC_evil", 14, 28, undefined, undefined, undefined, "roam", 4));
+               this.units?.push?.(new Unit(this, "UP_evil", 8, 26, undefined, undefined, undefined, "roam", 4));
+               this.units?.push?.(_loc5_ = new Unit(this, "UP_evil", 13, 18, 0.5625, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UP_evil", 3, 18, 0.125, undefined, undefined, "still"));
+               this.indicators?.push?.(new Indicator(this, this.arena?.tileHandles?._9_8, undefined, undefined, "focus"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level31_ind1"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, _loc4_, undefined, undefined, "focus"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level31_ind2"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, _loc5_, undefined, undefined, "focus"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level31_ind3"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, this.arena?.tileHandles?._8_18, undefined, undefined, "focus"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level31_ind4"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, _loc4_, undefined, undefined, "focus"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level31_ind4"), "message"));
                this.arena?.shroud?.reveal?.(13, 18, 3);
                this.arena?.shroud?.reveal?.(8, 7, 3);
                this.arena?.shroud?.reveal?.(8, 18, 4);
@@ -6268,7 +6268,7 @@
                this.buildings?.push?.(new Building(this, "BD_good", 25, 4));
                this.buildings?.push?.(new Building(this, "BF_good", 26, 4));
                this.buildings?.push?.(_loc3_ = new Building(this, "BK_good", 22, 4));
-               this.buildings?.push?.(_loc4_ = new Building(this, "BL_good", 22, 17, null, 0.8));
+               this.buildings?.push?.(_loc4_ = new Building(this, "BL_good", 22, 17, undefined, 0.8));
                __as.set(_loc4_, "repairing", true);
                this.specialBuilding = _loc4_;
                this.units?.push?.(_loc6_ = new Unit(this, "UA_good", 4, 4, 0.625));
@@ -6277,36 +6277,36 @@
                this.units?.push?.(new Unit(this, "UR_good", 22, 7, 0.5625));
                this.units?.push?.(new Unit(this, "UR_good", 21, 5, 0.6875));
                this.buildings?.push?.(_loc5_ = new Building(this, "BK_evil", 22, 27));
-               this.units?.push?.(new Unit(this, "UC_evil", null, null, null, null, null, _loc4_, null, true));
-               this.units?.push?.(new Unit(this, "UC_evil", null, null, null, null, null, _loc4_, null, true));
-               this.units?.push?.(new Unit(this, "UC_evil", null, null, null, null, null, _loc4_, null, true));
-               this.units?.push?.(new Unit(this, "UF_evil", 28, 11, 0.875, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UP_evil", 27, 13, 0.625, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UF_evil", 19, 14, 0.9375, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UP_evil", 17, 13, 0.1875, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UE_evil", 13, 7, 0.75, null, null, "still", 5000));
-               this.units?.push?.(new Unit(this, "UE_evil", 2, 18, 0.1875, null, null, "still", 8000));
-               this.units?.push?.(new Unit(this, "UE_evil", 15, 22, 0.875, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UF_evil", 11, 15, 0.5625, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_evil", 9, 26, 0.1875, null, null, "roam", 4));
-               this.units?.push?.(new Unit(this, "UA_evil", 3, 11, 0.0625, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_evil", 3, 25, null, null, null, "roam", 2));
-               this.units?.push?.(new Unit(this, "UA_evil", 10, 4, null, null, null, "roam", 6));
-               this.units?.push?.(new Unit(this, "UA_evil", 8, 12, null, null, null, "roam", 4));
-               this.units?.push?.(new Unit(this, "UA_evil", 12, 10, null, null, null, "roam", 6));
-               this.units?.push?.(new Unit(this, "UA_evil", 17, 6, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_evil", 28, 18, null, null, null, "roam", 2));
-               this.units?.push?.(new Unit(this, "UI_good", 6, 6, null, null, null, null, "UR_good"));
-               this.units?.push?.(new Unit(this, "UI_good", 2, 28, null, null, null, null, 10000));
-               this.units?.push?.(new Unit(this, "UI_good", 10, 22, null, null, null, null, "UC_good"));
-               this.indicators?.push?.(new Indicator(this, _loc5_, null, null, "focus"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level32_ind1"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, _loc4_, null, null, "focus"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level32_ind2"), "message", 120));
-               this.indicators?.push?.(new Indicator(this, _loc3_, null, null, "focus"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level32_ind3"), "message", 60));
-               this.indicators?.push?.(new Indicator(this, _loc6_, null, null, "focus"));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level32_ind4"), "message"));
+               this.units?.push?.(new Unit(this, "UC_evil", undefined, undefined, undefined, undefined, undefined, _loc4_, undefined, true));
+               this.units?.push?.(new Unit(this, "UC_evil", undefined, undefined, undefined, undefined, undefined, _loc4_, undefined, true));
+               this.units?.push?.(new Unit(this, "UC_evil", undefined, undefined, undefined, undefined, undefined, _loc4_, undefined, true));
+               this.units?.push?.(new Unit(this, "UF_evil", 28, 11, 0.875, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UP_evil", 27, 13, 0.625, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UF_evil", 19, 14, 0.9375, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UP_evil", 17, 13, 0.1875, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UE_evil", 13, 7, 0.75, undefined, undefined, "still", 5000));
+               this.units?.push?.(new Unit(this, "UE_evil", 2, 18, 0.1875, undefined, undefined, "still", 8000));
+               this.units?.push?.(new Unit(this, "UE_evil", 15, 22, 0.875, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UF_evil", 11, 15, 0.5625, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_evil", 9, 26, 0.1875, undefined, undefined, "roam", 4));
+               this.units?.push?.(new Unit(this, "UA_evil", 3, 11, 0.0625, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_evil", 3, 25, undefined, undefined, undefined, "roam", 2));
+               this.units?.push?.(new Unit(this, "UA_evil", 10, 4, undefined, undefined, undefined, "roam", 6));
+               this.units?.push?.(new Unit(this, "UA_evil", 8, 12, undefined, undefined, undefined, "roam", 4));
+               this.units?.push?.(new Unit(this, "UA_evil", 12, 10, undefined, undefined, undefined, "roam", 6));
+               this.units?.push?.(new Unit(this, "UA_evil", 17, 6, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_evil", 28, 18, undefined, undefined, undefined, "roam", 2));
+               this.units?.push?.(new Unit(this, "UI_good", 6, 6, undefined, undefined, undefined, undefined, "UR_good"));
+               this.units?.push?.(new Unit(this, "UI_good", 2, 28, undefined, undefined, undefined, undefined, 10000));
+               this.units?.push?.(new Unit(this, "UI_good", 10, 22, undefined, undefined, undefined, undefined, "UC_good"));
+               this.indicators?.push?.(new Indicator(this, _loc5_, undefined, undefined, "focus"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level32_ind1"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, _loc4_, undefined, undefined, "focus"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level32_ind2"), "message", 120));
+               this.indicators?.push?.(new Indicator(this, _loc3_, undefined, undefined, "focus"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level32_ind3"), "message", 60));
+               this.indicators?.push?.(new Indicator(this, _loc6_, undefined, undefined, "focus"));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level32_ind4"), "message"));
                this.arena?.shroud?.reveal?.(22, 27, 4);
                this.arena?.shroud?.reveal?.(22, 22, 4);
                this.arena?.shroud?.reveal?.(23, 13, 3);
@@ -6320,70 +6320,70 @@
                this.buildings?.push?.(new Building(this, "BB_evil", -10, -10));
                this.buildings?.push?.(new Building(this, "BB_evil", -10, -10));
                this.buildings?.push?.(new Building(this, "BK_good", 11, 4));
-               this.units?.push?.(new Unit(this, "UI_good", 6, 12, null, null, null, null, 2000));
-               this.units?.push?.(new Unit(this, "UI_good", 17, 13, null, null, null, null, 2000));
-               this.units?.push?.(new Unit(this, "UI_good", 10, 5, null, null, null, null, "UE_good"));
-               this.units?.push?.(new Unit(this, "UI_good", 11, 6, null, null, null, null, "UF_good"));
-               this.units?.push?.(new Unit(this, "UI_good", 12, 6, null, null, null, null, "UF_good"));
-               this.units?.push?.(new Unit(this, "UI_good", 13, 5, null, null, null, null, "UE_good"));
+               this.units?.push?.(new Unit(this, "UI_good", 6, 12, undefined, undefined, undefined, undefined, 2000));
+               this.units?.push?.(new Unit(this, "UI_good", 17, 13, undefined, undefined, undefined, undefined, 2000));
+               this.units?.push?.(new Unit(this, "UI_good", 10, 5, undefined, undefined, undefined, undefined, "UE_good"));
+               this.units?.push?.(new Unit(this, "UI_good", 11, 6, undefined, undefined, undefined, undefined, "UF_good"));
+               this.units?.push?.(new Unit(this, "UI_good", 12, 6, undefined, undefined, undefined, undefined, "UF_good"));
+               this.units?.push?.(new Unit(this, "UI_good", 13, 5, undefined, undefined, undefined, undefined, "UE_good"));
                this.units?.push?.(new Unit(this, "UC_good", 10, 5, 0.625));
                this.units?.push?.(new Unit(this, "UR_good", 11, 7, 0.5625));
                this.units?.push?.(new Unit(this, "UR_good", 12, 7, 0.4375));
                this.units?.push?.(new Unit(this, "UC_good", 13, 5, 0.375));
-               this.units?.push?.(new Unit(this, "UI_good", 2, 11, null, null, null, null, "UP_good"));
-               this.units?.push?.(new Unit(this, "UI_good", 21, 11, null, null, null, null, "UP_good"));
-               this.units?.push?.(new Unit(this, "UI_good", 2, 14, null, null, null, null, "UF_good"));
-               this.units?.push?.(new Unit(this, "UI_good", 21, 14, null, null, null, null, "UF_good"));
+               this.units?.push?.(new Unit(this, "UI_good", 2, 11, undefined, undefined, undefined, undefined, "UP_good"));
+               this.units?.push?.(new Unit(this, "UI_good", 21, 11, undefined, undefined, undefined, undefined, "UP_good"));
+               this.units?.push?.(new Unit(this, "UI_good", 2, 14, undefined, undefined, undefined, undefined, "UF_good"));
+               this.units?.push?.(new Unit(this, "UI_good", 21, 14, undefined, undefined, undefined, undefined, "UF_good"));
                if(random?.(2) == 1)
                {
-                  this.units?.push?.(new Unit(this, "UO_evil", 3, 27, null, null, null, null, "UQ_evil_oppo"));
-                  this.units?.push?.(new Unit(this, "UO_evil", 20, 27, null, null, null, null, 10000));
+                  this.units?.push?.(new Unit(this, "UO_evil", 3, 27, undefined, undefined, undefined, undefined, "UQ_evil_oppo"));
+                  this.units?.push?.(new Unit(this, "UO_evil", 20, 27, undefined, undefined, undefined, undefined, 10000));
                }
                else
                {
-                  this.units?.push?.(new Unit(this, "UO_evil", 3, 27, null, null, null, null, 10000));
-                  this.units?.push?.(new Unit(this, "UO_evil", 20, 27, null, null, null, null, "UQ_evil_oppo"));
+                  this.units?.push?.(new Unit(this, "UO_evil", 3, 27, undefined, undefined, undefined, undefined, 10000));
+                  this.units?.push?.(new Unit(this, "UO_evil", 20, 27, undefined, undefined, undefined, undefined, "UQ_evil_oppo"));
                }
-               this.units?.push?.(new Unit(this, "UP_evil", 5, 9, 0.125, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_evil", 4, 8, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_evil", 5, 8, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_evil", 6, 8, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_evil", 4, 9, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_evil", 6, 9, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_evil", 4, 10, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_evil", 5, 10, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UA_evil", 6, 10, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UP_evil", 18, 9, 0.375, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UC_evil", 17, 8, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UC_evil", 18, 8, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UC_evil", 19, 8, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UC_evil", 17, 9, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UC_evil", 19, 9, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UC_evil", 17, 10, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UC_evil", 18, 10, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UC_evil", 19, 10, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UP_evil", 5, 16, 0.875, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UF_evil", 4, 15, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UF_evil", 5, 15, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UF_evil", 6, 15, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UF_evil", 4, 16, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UF_evil", 6, 16, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UF_evil", 4, 17, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UF_evil", 5, 17, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UF_evil", 6, 17, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UP_evil", 18, 16, 0.625, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UE_evil", 17, 15, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UE_evil", 18, 15, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UE_evil", 19, 15, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UE_evil", 17, 16, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UE_evil", 19, 16, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UE_evil", 17, 17, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UE_evil", 18, 17, null, null, null, "still"));
-               this.units?.push?.(new Unit(this, "UE_evil", 19, 17, null, null, null, "still"));
+               this.units?.push?.(new Unit(this, "UP_evil", 5, 9, 0.125, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_evil", 4, 8, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_evil", 5, 8, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_evil", 6, 8, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_evil", 4, 9, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_evil", 6, 9, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_evil", 4, 10, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_evil", 5, 10, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UA_evil", 6, 10, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UP_evil", 18, 9, 0.375, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UC_evil", 17, 8, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UC_evil", 18, 8, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UC_evil", 19, 8, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UC_evil", 17, 9, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UC_evil", 19, 9, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UC_evil", 17, 10, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UC_evil", 18, 10, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UC_evil", 19, 10, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UP_evil", 5, 16, 0.875, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UF_evil", 4, 15, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UF_evil", 5, 15, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UF_evil", 6, 15, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UF_evil", 4, 16, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UF_evil", 6, 16, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UF_evil", 4, 17, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UF_evil", 5, 17, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UF_evil", 6, 17, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UP_evil", 18, 16, 0.625, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UE_evil", 17, 15, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UE_evil", 18, 15, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UE_evil", 19, 15, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UE_evil", 17, 16, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UE_evil", 19, 16, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UE_evil", 17, 17, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UE_evil", 18, 17, undefined, undefined, undefined, "still"));
+               this.units?.push?.(new Unit(this, "UE_evil", 19, 17, undefined, undefined, undefined, "still"));
                this.buildings?.push?.(new Building(this, "BD_evil", 11, 12));
                this.buildings?.push?.(new Building(this, "BD_evil", 12, 12));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level33_ind1"), "message", 80));
-               this.indicators?.push?.(new Indicator(this, null, null, dialogue?.("int_level33_ind2"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level33_ind1"), "message", 80));
+               this.indicators?.push?.(new Indicator(this, undefined, undefined, dialogue?.("int_level33_ind2"), "message", 80));
                this.cash = 6000;
                this.jukebox = 3;
             }
@@ -6396,7 +6396,7 @@
             }
             if(this.level == 1 || this.level == 11 || this.level == 26)
             {
-               if(this.cash >= 1)
+               if(!(this.cash < 1))
                {
                   this.win?.();
                }
@@ -6472,16 +6472,16 @@
                      __as.set(this.units?.[_loc4_]?.nav, "hesitate", 1000);
                      __as.set(this.units?.[_loc4_], "weaponCharge", 1000);
                   }
-                  this.units?.push?.(new Unit(this, "UB_good", 9, 13, 0, this.parent?.team, null, _loc2_));
-                  this.units?.push?.(new Unit(this, "UB_good", 9, 13, 0, this.parent?.team, null, _loc2_));
-                  this.units?.push?.(new Unit(this, "UB_good", 9, 13, 0, this.parent?.team, null, _loc2_));
-                  this.units?.push?.(new Unit(this, "UB_good", 9, 13, 0, this.parent?.team, null, _loc2_));
-                  this.units?.push?.(new Unit(this, "UB_good", 9, 13, 0, this.parent?.team, null, _loc2_));
-                  this.units?.push?.(new Unit(this, "UB_evil", 12, 13, 0, this.parent?.team, null, _loc2_));
-                  this.units?.push?.(new Unit(this, "UB_evil", 12, 13, 0, this.parent?.team, null, _loc2_));
-                  this.units?.push?.(new Unit(this, "UB_evil", 12, 13, 0, this.parent?.team, null, _loc2_));
-                  this.units?.push?.(new Unit(this, "UB_evil", 12, 13, 0, this.parent?.team, null, _loc2_));
-                  this.units?.push?.(new Unit(this, "UB_evil", 12, 13, 0, this.parent?.team, null, _loc2_));
+                  this.units?.push?.(new Unit(this, "UB_good", 9, 13, 0, this.parent?.team, undefined, _loc2_));
+                  this.units?.push?.(new Unit(this, "UB_good", 9, 13, 0, this.parent?.team, undefined, _loc2_));
+                  this.units?.push?.(new Unit(this, "UB_good", 9, 13, 0, this.parent?.team, undefined, _loc2_));
+                  this.units?.push?.(new Unit(this, "UB_good", 9, 13, 0, this.parent?.team, undefined, _loc2_));
+                  this.units?.push?.(new Unit(this, "UB_good", 9, 13, 0, this.parent?.team, undefined, _loc2_));
+                  this.units?.push?.(new Unit(this, "UB_evil", 12, 13, 0, this.parent?.team, undefined, _loc2_));
+                  this.units?.push?.(new Unit(this, "UB_evil", 12, 13, 0, this.parent?.team, undefined, _loc2_));
+                  this.units?.push?.(new Unit(this, "UB_evil", 12, 13, 0, this.parent?.team, undefined, _loc2_));
+                  this.units?.push?.(new Unit(this, "UB_evil", 12, 13, 0, this.parent?.team, undefined, _loc2_));
+                  this.units?.push?.(new Unit(this, "UB_evil", 12, 13, 0, this.parent?.team, undefined, _loc2_));
                }
                else
                {
@@ -6494,7 +6494,7 @@
             }
             if(this.level == 23)
             {
-               if(!this.powerLow && this.construction?.shortcuts?.BH_good?.total >= 4)
+               if(!this.powerLow && !(this.construction?.shortcuts?.BH_good?.total < 4))
                {
                   __as.set(this.camera, "focus", this.arena?.tileHandles?._8_7);
                   this.win?.();
@@ -7130,7 +7130,7 @@
                   _loc3_ = this.parent?.buildings?.[_loc6_];
                   if(_loc3_?.friend != this.friend)
                   {
-                     if(_loc3_?.stats?.threat >= _loc4_)
+                     if(!(_loc3_?.stats?.threat < _loc4_))
                      {
                         if(!(this.friend && !_loc3_?.stats?.weapon))
                         {
@@ -7153,7 +7153,7 @@
                      {
                         if(!(_loc2_?.stats?.flying && this.stats?.weapon == "laser" && _loc2_?.nav?.landerPerc < 75))
                         {
-                           if(_loc2_?.stats?.threat >= _loc4_)
+                           if(!(_loc2_?.stats?.threat < _loc4_))
                            {
                               _loc5_ = distance?.(this.posX, this.posY, _loc2_?.posX, _loc2_?.posY);
                               if(_loc5_ < this.stats?.weaponRange)
@@ -7203,7 +7203,7 @@
             {
                return undefined;
             }
-            if(this.weaponPayload <= 0)
+            if(!(this.weaponPayload > 0))
             {
                this.target = false;
                this.nav?.returnHome?.();
@@ -7217,7 +7217,7 @@
                _loc4_ = (1 - Math.abs(_loc4_)) * (-_loc4_ / Math.abs(_loc4_));
             }
             _loc2_ = this.angle + 0.5 * _loc4_;
-            while(_loc2_ >= 1)
+            while(!(_loc2_ < 1))
             {
                _loc2_ = _loc2_ - 1;
             }
@@ -7254,7 +7254,7 @@
          {
             var _loc3_ = this.buildings?.length - 1;
             var _loc2_;
-            while(_loc3_ >= 0)
+            while(!(_loc3_ < 0))
             {
                _loc2_ = this.buildings?.[_loc3_];
                if(_loc2_?.active && _loc2_?.type == type && (!team || _loc2_?.team == team))
@@ -7307,7 +7307,7 @@
                   __as.set(this.camera, "focus", this.indicator);
                }
             }
-            if(this.indicators?.length == 0 && this.level >= 3)
+            if(this.indicators?.length == 0 && !(this.level < 3))
             {
                this.training = false;
             }
@@ -7655,10 +7655,10 @@
                            }
                         }
                      }
-                     var __en1 = __as.keys(this.selected)?.concat?.([null]), __ei1 = 0, _loc0_;
+                     var __en1 = __as.keys(this.selected)?.concat?.([undefined]), __ei1 = 0, _loc0_;
                      while(true)
                      {
-                        if((_loc0_ = __en2?.[__ei2++]) != null)
+                        if((_loc0_ = __en1?.[__ei1++]) != undefined)
                         {
                            _loc2_ = _loc0_;
                            if(this.selected?.[_loc2_]?.stats?.weapon)
@@ -7720,10 +7720,10 @@
                   _loc3_ = this.parent?.arena?.translatePos?.(this.posX, this.posY);
                   if(this.parent?.arena?.baits?.[_loc3_?.x]?.[_loc3_?.y])
                   {
-                     var __en2 = __as.keys(this.selected)?.concat?.([null]), __ei2 = 0, _loc0_;
+                     var __en2 = __as.keys(this.selected)?.concat?.([undefined]), __ei2 = 0, _loc0_;
                      do
                      {
-                        if((_loc0_ = __en2?.[__ei2++]) == null)
+                        if((_loc0_ = __en2?.[__ei2++]) == undefined)
                         {
                            return;
                         }
@@ -8007,7 +8007,7 @@
             if(Key.isDown(81))
             {
                _loc2_ = 1;
-               while(_loc2_ <= this.parent?.squads?.totalSquads)
+               while(!(_loc2_ > this.parent?.squads?.totalSquads))
                {
                   if(Key.isDown(48 + _loc2_))
                   {
@@ -8020,7 +8020,7 @@
             if(Key.isDown(87))
             {
                _loc2_ = 1;
-               while(_loc2_ <= this.parent?.squads?.totalSquads)
+               while(!(_loc2_ > this.parent?.squads?.totalSquads))
                {
                   if(Key.isDown(48 + _loc2_))
                   {
@@ -8032,7 +8032,7 @@
                         var temp = this.parent?.squads?.retrieve?.(_loc2_);
                         for(var _loc3_ of __as.keys(temp))
                         {
-                           if(temp?.[_loc3_]?.posX >= 0 && temp?.[_loc3_]?.posY >= 0)
+                           if(!(temp?.[_loc3_]?.posX < 0) && !(temp?.[_loc3_]?.posY < 0))
                            {
                               __as.set(temp?.[_loc3_], "selected", true);
                            }
@@ -8045,7 +8045,7 @@
             else
             {
                _loc2_ = 1;
-               while(_loc2_ <= this.parent?.squads?.totalSquads)
+               while(!(_loc2_ > this.parent?.squads?.totalSquads))
                {
                   if(Key.isDown(48 + _loc2_))
                   {
@@ -8058,7 +8058,7 @@
                         }
                         for(_loc3_ of __as.keys(temp))
                         {
-                           if(temp?.[_loc3_]?.posX >= 0 && temp?.[_loc3_]?.posY >= 0)
+                           if(!(temp?.[_loc3_]?.posX < 0) && !(temp?.[_loc3_]?.posY < 0))
                            {
                               __as.set(temp?.[_loc3_], "selected", true);
                            }
@@ -8302,7 +8302,7 @@
          var _loc5_;
          var _loc3_ = 0;
          var _loc4_;
-         while(_loc3_ <= this.data?.tiles?.length)
+         while(!(_loc3_ > this.data?.tiles?.length))
          {
             _loc4_ = ascii2num?.(this.data?.tiles?.[_loc3_]);
             _loc6_ = !(_loc4_ & 0x20) ? false : true;

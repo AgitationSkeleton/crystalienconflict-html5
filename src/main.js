@@ -39,6 +39,17 @@ const player = new Player(canvas, {
 });
 globalThis.player = player;                // for the console and the verification harness
 
+// ?test stops the clock: frames advance only when __step() is called, so a test decides
+// exactly when each click lands.  ?seed=N makes the random numbers repeatable.
+const params = new URLSearchParams(location.search);
+const TEST = params.has('test');
+if (params.has('seed')) player.seedRandom(Number(params.get('seed')) || 0);
+globalThis.__step = (n = 1) => {
+  for (let i = 0; i < n; i++) player.tick();
+  player.draw();
+  return player.frame;
+};
+
 // ---- the stage fills the window; the movie is fitted inside it ("showAll") -------------
 function resize() {
   const r = canvas.getBoundingClientRect();
@@ -129,7 +140,7 @@ async function start() {
   resize();
   await player.loadLevel(0, loader.lib);
   player.draw();
-  requestAnimationFrame(loop);
+  if (!TEST) requestAnimationFrame(loop);
 }
 
 start().catch((e) => {

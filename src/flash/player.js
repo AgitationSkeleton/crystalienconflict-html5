@@ -62,7 +62,20 @@ export class Player {
     this.openMovie = opts.openMovie || null;   // "game.swf" -> { lib, ready } (see loadMovieNum)
     this.onError = opts.onError || ((key, e) => console.error('[as2]', key, e));
     this.startTime = performance.now();
+    this.random = Math.random;
     installBuiltins(this);
+  }
+
+  // A repeatable random sequence (mulberry32), for tests.
+  seedRandom(seed) {
+    let a = seed >>> 0;
+    this.random = () => {
+      a = (a + 0x6d2b79f5) >>> 0;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
   }
 
   // loadMovieNum(url, n), the loader's way of starting the game.  The SWF's file name

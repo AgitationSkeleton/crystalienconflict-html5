@@ -25,6 +25,8 @@ be read side by side.  What changes is only what JavaScript would do differently
     `this` go through __as.set / __as.upd / __as.op.
   * for..in.  AVM1 enumerates newest-first (arrays: highest index first); JavaScript
     does not.  Loops go through __as.keys, which returns AVM1's order.
+  * null.  Written as undefined, so arithmetic on it gives NaN as in AS2 (see _expr).
+  * <= and >=.  Written as !(a > b) and !(a < b), which is what the bytecode does.
 
 Nothing else is rewritten.  If esprima cannot parse a script the build stops and says
 which one.
@@ -248,7 +250,13 @@ class Emitter:
             return e.name
         if t == 'Literal':
             if e.value is None and e.raw == 'null':
-                return 'null'
+                # AS2 (SWF 7+) converts null to NaN in arithmetic and comparisons, as it
+                # does undefined; JavaScript makes null 0.  The game passes null for "no
+                # value" (new Unit(this, "UD_good", null, null, ...)) and then does maths
+                # on it, so null is written as undefined, which JavaScript treats the
+                # AS2 way.  Nothing in the game tells the two apart: it never uses ===,
+                # and never tests typeof against "null".
+                return 'undefined'
             if isinstance(e.value, str):
                 return json.dumps(e.value)
             return e.raw
@@ -283,6 +291,14 @@ class Emitter:
                                                      'true' if e.prefix else 'false')
             a = self.expr(arg, 16)
             return e.operator + a if e.prefix else a + e.operator
+        if t == 'BinaryExpression' and e.operator in ('<=', '>='):
+            # AVM1 has no <= or >=.  The compiler emits !(a > b) and !(a < b), which are
+            # true when either side is NaN or undefined; JavaScript's <= and >= are false
+            # there.  The game relies on it: a unit whose path was deleted passes
+            # `if (this.path.length <= 1)` in Flash, and must here too.
+            left = self.expr(e.left, 10)
+            right = self.expr(e.right, 11)
+            return '!(%s %s %s)' % (left, '>' if e.operator == '<=' else '<', right)
         if t in ('BinaryExpression', 'LogicalExpression'):
             p = prec(e)
             left = self.expr(e.left, p)
@@ -367,18 +383,15 @@ def preprocess(text, key):
     # FFDec's raw form of a for..in it could not restructure:
     #   §§enumerate(X);  ...  (_loc0_ = §§enumeration())
     # AVM1 pushes a null terminator then the keys, and each step pops one.
+    # Each §§enumeration() belongs to the nearest §§enumerate before it.
     n = [0]
 
-    def enum_start(mm):
-        n[0] += 1
-        return 'var __en%d = __as.keys(%s).concat([null]), __ei%d = 0, _loc0_;' % (n[0], mm.group(1), n[0])
-    text = re.sub(r'§§enumerate\((.*?)\);', enum_start, text)
-    count = [0]
-
-    def enum_next(mm):
-        count[0] += 1
+    def enum_token(mm):
+        if mm.group(1) is not None:
+            n[0] += 1
+            return 'var __en%d = __as.keys(%s).concat([null]), __ei%d = 0, _loc0_;' % (n[0], mm.group(1), n[0])
         return '__en%d[__ei%d++]' % (n[0], n[0])
-    text = re.sub(r'§§enumeration\(\)', enum_next, text)
+    text = re.sub(r'§§enumerate\((.*?)\);|§§enumeration\(\)', enum_token, text)
     # Any obfuscator residue still left is a syntax error ('§' cannot begin an
     # identifier), so esprima reports it; a '§' inside a string literal is legitimate.
     return text

@@ -69,8 +69,12 @@ export function installBuiltins(player) {
 
   // The standard classes and functions ActionScript shares with JavaScript.  Scripts see
   // them through the scope chain like any other global, so they have to be listed here.
+  // Math is JavaScript's, except that Math.random and random() share one generator, which
+  // a test can seed (player.seedRandom) to make a run repeatable.
+  const AS2Math = Object.create(Math);
+  AS2Math.random = () => player.random();
   Object.assign(B, {
-    Math, Array, Object, Number, Boolean, Date, Function, Error,
+    Math: AS2Math, Array, Object, Number, Boolean, Date, Function, Error,
     parseInt, parseFloat, isNaN, isFinite, NaN, Infinity,
   });
   // String(): ActionScript prints numbers with 15 significant digits, not JavaScript's 17.
@@ -84,7 +88,7 @@ export function installBuiltins(player) {
 
   B.random = (n) => {
     n = Math.trunc(+n);
-    return n > 0 ? Math.floor(Math.random() * n) : 0;
+    return n > 0 ? Math.floor(player.random() * n) : 0;
   };
   B.int = (v) => Math.trunc(+v) | 0;
   B.getTimer = () => Math.floor(performance.now() - player.startTime);
@@ -275,36 +279,94 @@ function installArrayExtras() {
   def(Array, 'UNIQUESORT', 4);
   def(Array, 'RETURNINDEXEDARRAY', 8);
   def(Array, 'NUMERIC', 16);
-  // AS2's sortOn.  Only NUMERIC (the pathfinder's open list) is used by this game.
-  // Flash's sort is not stable; a stable sort orders ties by insertion, which may pick a
-  // different one of two equal-cost paths than the original did.
-  def(Array.prototype, 'sortOn', function (field, flags) {
-    flags = +flags || 0;
-    const fields = Array.isArray(field) ? field : [field];
-    const numeric = (flags & 16) !== 0;
-    const desc = (flags & 2) !== 0;
-    const ci = (flags & 1) !== 0;
-    const cmp = (a, b) => {
-      for (const f of fields) {
-        let x = a == null ? undefined : a[f];
-        let y = b == null ? undefined : b[f];
-        let r;
-        if (numeric) {
-          x = Number(x); y = Number(y);
-          r = x < y ? -1 : x > y ? 1 : 0;
-        } else {
-          x = asString(x); y = asString(y);
-          if (ci) { x = x.toLowerCase(); y = y.toLowerCase(); }
-          r = x < y ? -1 : x > y ? 1 : 0;
-        }
-        if (r) return desc ? -r : r;
+  def(Array.prototype, 'sortOn', function (field, options) {
+    return sortOn(this, field, options);
+  });
+}
+
+// ---- Array sorting, as Flash Player did it ----------------------------------------------
+// Flash's sort is a quicksort that is not stable, and the order it leaves equal elements
+// in matters: the pathfinder sorts its open list with sortOn("f", Array.NUMERIC), and
+// ties (and NaNs, which compare equal) decide which way units go.  This follows Ruffle's
+// reproduction of it (core/src/avm1/globals/array.rs), case by case.
+
+const CASEINSENSITIVE = 1, DESCENDING = 2, UNIQUESORT = 4, RETURNINDEXEDARRAY = 8, NUMERIC = 16;
+
+function compareValues(a, b, options) {
+  let r;
+  if (typeof a === 'number' && typeof b === 'number' && (options & NUMERIC)) {
+    r = a < b ? -1 : a > b ? 1 : 0;              // NaN compares equal to everything
+  } else {
+    let x = asStringValue(a), y = asStringValue(b);
+    if (options & CASEINSENSITIVE) { x = x.toLowerCase(); y = y.toLowerCase(); }
+    r = x < y ? -1 : x > y ? 1 : 0;              // UTF-16 code units, as Flash compared
+  }
+  return (options & DESCENDING) ? -r : r;
+}
+
+// ActionScript's string conversion for sorting: undefined is "undefined" here, not "".
+function asStringValue(v) {
+  return v === undefined ? 'undefined' : asString(v);
+}
+
+function flashQuicksort(items, cmp) {
+  // items: [originalIndex, value] pairs, sorted in place.
+  if (items.length < 2) return;
+  const stack = [[0, items.length - 1]];
+  while (stack.length) {
+    const [low, high] = stack.pop();
+    if (low >= high) continue;
+    const pivot = items[low][1];                 // always the leftmost element
+    let left = low + 1;
+    let right = high;
+    for (;;) {
+      while (left < right && cmp(pivot, items[left][1]) > 0) left++;
+      while (right > low && cmp(pivot, items[right][1]) <= 0) right--;
+      if (left >= right) break;
+      const t = items[left]; items[left] = items[right]; items[right] = t;
+    }
+    const t = items[low]; items[low] = items[right]; items[right] = t;
+    stack.push([right + 1, high]);
+    if (right > 0) stack.push([low, right - 1]);
+  }
+}
+
+function sortOn(arr, field, options) {
+  let fields;
+  if (Array.isArray(field)) {
+    if (!field.length) return arr;
+    fields = field.map((f) => [asStringValue(f), 0]);
+    if (Array.isArray(options) && options.length === field.length) {
+      options.forEach((o, i) => { fields[i][1] = Math.trunc(+o) | 0; });
+    } else if (options !== undefined && (typeof options !== 'object' || options === null)) {
+      const o = Math.trunc(+options) | 0;
+      fields.forEach((f) => { f[1] = o; });
+    }
+  } else if (field === undefined) {
+    return undefined;
+  } else {
+    fields = [[asStringValue(field), typeof options === 'number' ? Math.trunc(options) | 0 : 0]];
+  }
+  const main = fields[0][1];
+  const own = (o, k) => (Object.prototype.hasOwnProperty.call(o, k) ? o[k] : undefined);
+  const cmp = (a, b) => {
+    if (a && b && typeof a === 'object' && typeof b === 'object') {
+      for (const [f, o] of fields) {
+        const r = compareValues(own(a, f), own(b, f), o);
+        if (r) return r;
       }
       return 0;
-    };
-    if (flags & 8) return this.map((v, i) => [v, i]).sort((a, b) => cmp(a[0], b[0])).map((p) => p[1]);
-    Array.prototype.sort.call(this, cmp);
-    return this;
-  });
+    }
+    return compareValues(a, b, main);
+  };
+  const items = arr.map((v, i) => [i, v]);
+  flashQuicksort(items, cmp);
+  if (main & UNIQUESORT) {
+    for (let i = 1; i < items.length; i++) if (cmp(items[i - 1][1], items[i][1]) === 0) return 0;
+  }
+  if (main & RETURNINDEXEDARRAY) return items.map((p) => p[0]);
+  items.forEach((p, i) => { arr[i] = p[1]; });
+  return arr;
 }
 
 // ---- XML ----------------------------------------------------------------------------------------
