@@ -76,7 +76,11 @@ def main():
         page = browser.new_page(viewport={'width': int(600 * s), 'height': int(400 * s)})
         page.on('console', lambda m: log.append('[%s] %s' % (m.type, m.text)))
         page.on('pageerror', lambda e: log.append('[pageerror] %s' % e))
-        page.on('requestfailed', lambda r: log.append('[requestfailed] %s %s' % (r.url, r.failure)))
+        # Chromium reports some of the parallel library downloads as net::ERR_ABORTED even
+        # though every byte arrives (the page parses and decodes them); only real failures
+        # are worth logging.
+        page.on('requestfailed', lambda r: r.failure == 'net::ERR_ABORTED' or
+                log.append('[requestfailed] %s %s' % (r.url, r.failure)))
         query = '?test&seed=%d' % args.seed if args.test else ''
         page.goto('http://127.0.0.1:%d/%s%s' % (args.port, args.page, query))
         t0 = time.time()

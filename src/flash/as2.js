@@ -2,7 +2,7 @@
 // the way Flash Player 8 behaved -- plus __as, the helpers the translated code uses where
 // JavaScript and ActionScript disagree.
 
-import { asString } from './text.js';
+import { asString, stringToNumber, parseFloatAS2 } from './text.js';
 
 // ---- __as: where the two languages differ --------------------------------------------------
 
@@ -58,6 +58,23 @@ function op(obj, key, operator, value) {
   return set(obj, key, r);
 }
 
+// ActionScript 2's ToNumber (SWF 7 and later): undefined and null are NaN, and strings are
+// parsed by Flash's rules rather than JavaScript's (see text.js, stringToNumber).
+export function toNumber(v) {
+  switch (typeof v) {
+    case 'number': return v;
+    case 'boolean': return v ? 1 : 0;
+    case 'string': return stringToNumber(v);
+    case 'object':
+    case 'function': {
+      if (v === null) return NaN;
+      const p = typeof v.valueOf === 'function' ? v.valueOf() : v;
+      return p !== v && (typeof p !== 'object' || p === null) ? toNumber(p) : NaN;
+    }
+    default: return NaN;
+  }
+}
+
 // ---- installation ------------------------------------------------------------------------
 
 export function installBuiltins(player) {
@@ -74,8 +91,7 @@ export function installBuiltins(player) {
   const AS2Math = Object.create(Math);
   AS2Math.random = () => player.random();
   Object.assign(B, {
-    Math: AS2Math, Array, Object, Number, Boolean, Date, Function, Error,
-    parseInt, parseFloat, isNaN, isFinite, NaN, Infinity,
+    Math: AS2Math, Array, Object, Boolean, Date, Function, Error, parseInt, NaN, Infinity,
   });
   // String(): ActionScript prints numbers with 15 significant digits, not JavaScript's 17.
   function AS2String(v) {
@@ -85,6 +101,17 @@ export function installBuiltins(player) {
   AS2String.fromCharCode = String.fromCharCode;
   AS2String.prototype = String.prototype;
   B.String = AS2String;
+  // Number() and friends convert strings ActionScript's way (see toNumber).
+  function AS2Number(v) {
+    const n = arguments.length ? toNumber(v) : 0;
+    return new.target ? new Number(n) : n;
+  }
+  for (const k of ['MAX_VALUE', 'MIN_VALUE', 'NaN', 'NEGATIVE_INFINITY', 'POSITIVE_INFINITY']) AS2Number[k] = Number[k];
+  AS2Number.prototype = Number.prototype;
+  B.Number = AS2Number;
+  B.isNaN = (v) => Number.isNaN(toNumber(v));
+  B.isFinite = (v) => Number.isFinite(toNumber(v));
+  B.parseFloat = (v) => parseFloatAS2(v === undefined ? 'undefined' : asString(v), false);
 
   B.random = (n) => {
     n = Math.trunc(+n);

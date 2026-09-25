@@ -239,23 +239,176 @@ function normaliseNewlines(s) {
 
 // Number -> string as AVM1 does it: 15 significant digits, so 0.1 + 0.2 shows as 0.3.
 export function asString(v) {
-  if (typeof v === 'number') {
-    if (Number.isNaN(v)) return 'NaN';
-    if (!Number.isFinite(v)) return v > 0 ? 'Infinity' : '-Infinity';
-    if (v === 0) return '0';
-    let s = v.toPrecision(15);
-    if (s.includes('e')) {
-      let [mant, exp] = s.split('e');
-      if (mant.includes('.')) mant = mant.replace(/\.?0+$/, '');
-      return mant + 'e' + exp;
-    }
-    if (s.includes('.')) s = s.replace(/\.?0+$/, '');
-    return s;
-  }
+  if (typeof v === 'number') return numberToString(v);
   if (v === undefined) return '';
   if (v === null) return 'null';
   if (typeof v === 'boolean') return v ? 'true' : 'false';
   return String(v);
+}
+
+// A number as ActionScript 2 prints it: 15 significant digits, produced the way Flash
+// Player produced them -- scaling into [1, 10) and multiplying out digit by digit, then
+// rounding, with the player's own quirks.  Ported from Ruffle (core/src/avm1/value.rs,
+// f64_to_string), which reproduces Flash's output.
+function decimalShift(value, exp) {
+  let base = 10;
+  if (exp > 0) {
+    for (; exp > 0; exp >>= 1, base *= base) if (exp & 1) value *= base;
+  } else {
+    for (exp = -exp; exp > 0; exp >>>= 1, base *= base) if (exp & 1) value /= base;
+  }
+  return value;
+}
+
+const bits = new DataView(new ArrayBuffer(8));
+
+export function numberToString(n) {
+  if (Number.isNaN(n)) return 'NaN';
+  if (n === Infinity) return 'Infinity';
+  if (n === -Infinity) return '-Infinity';
+  if (n === 0) return '0';
+  if (n >= -2147483648 && n <= 2147483647 && Number.isInteger(n)) return String(n);
+  const buf = [];
+  const negative = n < 0;
+  if (negative) {
+    n = -n;
+    buf.push(45);                                   // '-'
+  }
+  bits.setFloat64(0, n);
+  let exp2 = ((bits.getUint16(0) >> 4) & 0x7ff) - 1023;
+  if (exp2 === -1023) {                             // subnormal
+    bits.setFloat64(0, n * 1.801439850948198e16);
+    exp2 = ((bits.getUint16(0) >> 4) & 0x7ff) - 1023 - 54;
+  }
+  const t = exp2 * 0.301029995663981;
+  let exp = (Math.sign(t) * Math.round(Math.abs(t))) | 0;   // round half away from zero
+  let mantissa = decimalShift(n, -exp);
+  if (Math.trunc(mantissa) === 0) {
+    exp -= 1;
+    mantissa = decimalShift(n, -exp);
+  }
+  if (Math.trunc(mantissa) >= 10) {
+    exp += 1;
+    mantissa = decimalShift(n, -exp);
+  }
+  const digit = () => {
+    const d = Math.trunc(mantissa);
+    mantissa = (mantissa - d) * 10;
+    return 48 + d;
+  };
+  const PLACES = 15;
+  if (exp >= 15) {
+    buf.push(digit(), 46);
+    for (let i = 0; i < PLACES - 1; i++) buf.push(digit());
+  } else if (exp >= 0) {
+    buf.push(48);
+    for (let i = 0; i <= exp; i++) buf.push(digit());
+    buf.push(46);
+    for (let i = 0; i < PLACES - exp - 1; i++) buf.push(digit());
+    exp = 0;
+  } else if (exp >= -5) {
+    buf.push(48, 48, 46);
+    for (let i = 0; i < -exp - 1; i++) buf.push(48);
+    for (let i = 0; i < PLACES; i++) buf.push(digit());
+    exp = 0;
+  } else {
+    buf.push(48, digit(), 46);                      // (Flash always keeps this digit)
+    for (let i = 0; i < PLACES - 1; i++) buf.push(digit());
+  }
+  // Round on the next digit, ties away from zero, carrying through 9s.
+  if (digit() >= 53) {
+    for (let i = buf.length - 1; i >= 0; i--) {
+      if (buf[i] === 57) buf[i] = 48;
+      else if (buf[i] >= 48) { buf[i]++; break; }
+    }
+  }
+  while (buf[buf.length - 1] === 48) buf.pop();
+  if (buf[buf.length - 1] === 46) buf.pop();
+  let start = 0;
+  if (exp !== 0) {
+    let lead = buf.findIndex((c) => c !== 48);
+    if (lead < 0) lead = buf.length;
+    if (lead) buf.splice(0, lead);
+    if (!buf.length) {
+      buf.push(49);
+      exp += 1;
+    } else {
+      let last = 0;
+      for (let i = buf.length - 1; i >= 0; i--) if (buf[i] !== 48) { last = i; break; }
+      if (last === 0) {
+        exp += buf.length - 1;
+        buf.length = 1;
+      }
+    }
+    for (const c of 'e' + (exp >= 0 ? '+' : '') + exp) buf.push(c.charCodeAt(0));
+  }
+  const i = negative ? 1 : 0;
+  if (buf[i] === 48 && buf[i + 1] !== 46) {
+    if (i > 0) buf[i] = buf[i - 1];
+    start = 1;
+  }
+  return String.fromCharCode(...buf.slice(start));
+}
+
+// ActionScript 2's ToNumber for a string (SWF 6 and later): hexadecimal after "0x", octal
+// when every digit after a leading 0 is 0-7, otherwise decimal -- where, unlike JavaScript,
+// an empty or blank string or trailing spaces give NaN, and digits are summed one at a
+// time as Flash did.  Ported from Ruffle (string_to_f64, parse_float_impl).
+export function stringToNumber(s) {
+  const body = s[0] === '+' || s[0] === '-' ? s.slice(1) : s;
+  if (body[0] === '0') {
+    // Flash skips "0x" by position, so a signed hexadecimal string fails, as there.
+    if (body[1] === 'x' || body[1] === 'X') return parseIntWrapping(s.slice(2), 16);
+    if (/^[0-7]*$/.test(body.slice(1))) return parseIntWrapping(s, 8);
+  }
+  return parseFloatAS2(s, true);
+}
+
+function parseIntWrapping(s, radix) {
+  let i = 0;
+  let negative = false;
+  if (s[0] === '-') { negative = true; i = 1; } else if (s[0] === '+') i = 1;
+  if (i >= s.length) return NaN;
+  let v = 0;
+  for (; i < s.length; i++) {
+    const d = parseInt(s[i], radix);
+    if (Number.isNaN(d)) return NaN;
+    v = (Math.imul(v, radix) + d) | 0;
+  }
+  return negative ? -v | 0 : v;
+}
+
+// strict: like Number() (trailing text fails); otherwise like parseFloat().
+export function parseFloatAS2(s, strict) {
+  const isDigit = (c) => c >= 48 && c <= 57;
+  let i = 0;
+  while (i < s.length && /\s/.test(s[i])) i++;
+  let negative = false;
+  if (s[i] === '-') { negative = true; i++; } else if (s[i] === '+') i++;
+  const afterSign = i;
+  while (i < s.length && isDigit(s.charCodeAt(i))) i++;
+  let exp = i - afterSign - 1;
+  if (s[i] === '.') {
+    i++;
+    while (i < s.length && isDigit(s.charCodeAt(i))) i++;
+  }
+  if (i === afterSign) return NaN;
+  if (s[i] === 'e' || s[i] === 'E') {
+    i++;
+    let expNegative = false;
+    if (s[i] === '-') { expNegative = true; i++; } else if (s[i] === '+') i++;
+    let e = 0;
+    while (i < s.length && isDigit(s.charCodeAt(i))) e = (Math.imul(e, 10) + s.charCodeAt(i++) - 48) | 0;
+    exp = (exp + (expNegative ? -e : e)) | 0;
+  }
+  if (strict && i < s.length) return NaN;
+  let result = 0;
+  for (let j = afterSign; j < s.length; j++) {
+    const c = s.charCodeAt(j);
+    if (isDigit(c)) result += decimalShift(c - 48, exp--);
+    else if (c !== 46) break;
+  }
+  return negative ? -result : result;
 }
 
 const ENTITIES = { lt: '<', gt: '>', amp: '&', quot: '"', apos: "'", nbsp: ' ' };
