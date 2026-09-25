@@ -9,6 +9,7 @@ Actions (stage coordinates; the viewport is the 600x400 stage at 1:1 unless --sc
     frames N           wait until the player has run N more frames
     shot NAME          screenshot -> OUTDIR/NAME.png
     click X Y          left click, held for two frames
+    clickjs JS         left click at the stage point [x, y] that JS evaluates to
     down X Y / up X Y  press / release
     move X Y           move the mouse
     key NAME           press and release a key (Playwright names: Space, Enter, a, ...)
@@ -67,6 +68,7 @@ def main():
     ap.add_argument('--dpr', type=float, default=1.0, help='device pixel ratio')
     ap.add_argument('--page', default='index.html')
     ap.add_argument('--root', default=ROOT)
+    ap.add_argument('--browser', default='chromium', choices=['chromium', 'firefox', 'webkit'])
     ap.add_argument('--test', action='store_true', help='stopped clock, seeded random numbers')
     ap.add_argument('--seed', type=int, default=1)
     args = ap.parse_args()
@@ -75,7 +77,10 @@ def main():
     log = []
     s = args.scale
     with sync_playwright() as p:
-        browser = p.chromium.launch(args=['--autoplay-policy=no-user-gesture-required'])
+        if args.browser == 'chromium':
+            browser = p.chromium.launch(args=['--autoplay-policy=no-user-gesture-required'])
+        else:
+            browser = getattr(p, args.browser).launch()
         if args.viewport:
             vw, vh = [int(v) for v in args.viewport.lower().split('x')]
         else:
@@ -112,6 +117,16 @@ def main():
                 page.evaluate('() => { delete window.__f0; }')
             elif op == 'shot':
                 page.screenshot(path=os.path.join(args.out, rest + '.png'))
+            elif op == 'clickjs':
+                sx, sy = page.evaluate(rest)
+                x, y = to_page(sx, sy)
+                page.mouse.move(x, y)
+                page.mouse.down()
+                if args.test:
+                    page.evaluate('() => __step(2)')
+                else:
+                    page.wait_for_timeout(90)
+                page.mouse.up()
             elif op in ('click', 'down', 'up', 'move'):
                 x, y = to_page(*[float(v) for v in rest.split()])
                 page.mouse.move(x, y)

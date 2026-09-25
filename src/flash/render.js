@@ -11,6 +11,17 @@ import { GLFilters, filterPadding, scaleBlur } from './filters.js';
 
 const SVGNS = 'http://www.w3.org/2000/svg';
 
+// A colour through a Flash colour matrix: 4 rows of [r, g, b, a, offset], offsets in 0..255.
+function cmApply(cm, c) {
+  const out = [0, 0, 0, 0];
+  for (let row = 0; row < 4; row++) {
+    const k = row * 5;
+    const v = cm[k] * c[0] + cm[k + 1] * c[1] + cm[k + 2] * c[2] + cm[k + 3] * c[3] + cm[k + 4];
+    out[row] = v < 0 ? 0 : v > 255 ? 255 : Math.round(v);
+  }
+  return out;
+}
+
 export class Renderer {
   constructor(canvas, player) {
     this.canvas = canvas;
@@ -21,7 +32,8 @@ export class Renderer {
     this.scale = 1;
     this.offsetX = 0;
     this.offsetY = 0;
-    this.tints = new Map();           // "bitmapId|cx" -> canvas
+    this.tints = new Map();           // "bitmapId|cx" -> canvas, least recently used first
+    this.tintPixels = 0;
     this.filterDefs = new Map();      // key -> { id, el }
     this.filterIds = 1;
     this.filterSvg = null;
@@ -91,14 +103,34 @@ export class Renderer {
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clip(clip, 'nonzero');
       const fl = this.potentFilters(obj.$filters);
-      if (fl) this.drawFiltered(ctx, obj, m, cx, fl);
+      if (fl) this.drawWithFilters(ctx, obj, m, cx, fl);
       else this.drawContent(ctx, obj, m, cx);
       ctx.restore();
       return;
     }
     const fl = this.potentFilters(obj.$filters);
-    if (fl) return this.drawFiltered(ctx, obj, m, cx, fl);
+    if (fl) return this.drawWithFilters(ctx, obj, m, cx, fl);
     this.drawContent(ctx, obj, m, cx);
+  }
+
+  // A colour matrix on a single shape needs no offscreen work: nothing inside one shape
+  // overlaps, so filtering its colours and bitmaps is the same as filtering the result.
+  // (The Christmas level has hundreds of these tiles, and a terrain 2880px square.)
+  drawWithFilters(ctx, obj, m, cx, fl) {
+    if (fl.length === 1 && fl[0].type === 'colorMatrix') {
+      const shape = this.singleShape(obj);
+      if (shape) return this.drawShape(ctx, shape, shape === obj ? m : mul(m, shape.$m), cx, fl[0].matrix);
+    }
+    this.drawFiltered(ctx, obj, m, cx, fl);
+  }
+
+  singleShape(obj) {
+    if (obj instanceof ShapeObj) return obj;
+    if (!(obj instanceof MovieClip) || (obj.$gfx && obj.$gfx.ops.length) || obj.$children.length !== 1) return null;
+    const c = obj.$children[0];
+    const plain = c instanceof ShapeObj && c.$visible && !c.$removed && !c.$clipDepth && !c.$filters &&
+      !c.$maskOf && !c.$maskClip && cxIsIdentity(c.$cx);
+    return plain ? c : null;
   }
 
   drawContent(ctx, obj, m, cx) {
@@ -176,30 +208,32 @@ export class Renderer {
     return (q === 'high' || q === 'best') && !!flagged;
   }
 
-  drawShape(ctx, obj, m, cx) {
+  // cm: a colour matrix to put the shape's colours through first (see drawWithFilters).
+  drawShape(ctx, obj, m, cx, cm) {
     const ch = obj.$char;
-    if (ch.bmp) return this.drawBitmapChar(ctx, ch.bmp.id, mul(m, ch.bmp.m), cx, obj.$lib, ch.bmp.smooth);
+    if (ch.bmp) return this.drawBitmapChar(ctx, ch.bmp.id, mul(m, ch.bmp.m), cx, obj.$lib, ch.bmp.smooth, cm);
     for (let li = 0; li < ch.layers.length; li++) {
       const L = ch.layers[li];
       for (let fi = 0; fi < L.fills.length; fi++) {
         const f = L.fills[fi];
         const path = obj.$lib.path(`${obj.$cid}:${li}:f${fi}`, f.p);
-        this.fillPath(ctx, path, f.s, m, cx, obj.$lib);
+        this.fillPath(ctx, path, f.s, m, cx, obj.$lib, cm);
       }
       for (let i = 0; i < L.lines.length; i++) {
         const l = L.lines[i];
         const path = obj.$lib.path(`${obj.$cid}:${li}:l${i}`, l.p);
-        this.strokePath(ctx, path, l.s, m, cx);
+        this.strokePath(ctx, path, l.s, m, cx, cm);
       }
     }
   }
 
-  fillPath(ctx, path, style, m, cx, lib) {
+  fillPath(ctx, path, style, m, cx, lib, cm) {
     this.setTransform(ctx, m);
     ctx.globalAlpha = 1;
     const t = style.t;
+    const colour = (c) => cxApplyRGBA(cx, cm ? cmApply(cm, c) : c);
     if (t === 'solid') {
-      ctx.fillStyle = cssColor(cxApplyRGBA(cx, style.c));
+      ctx.fillStyle = cssColor(colour(style.c));
       ctx.fill(path, 'evenodd');
     } else if (t === 'linear' || t === 'radial' || t === 'focal') {
       const g = style.m;
@@ -213,13 +247,13 @@ export class Renderer {
         const fx = t === 'focal' ? (style.focal || 0) * 819.2 : 0;
         grad = ctx.createRadialGradient(fx, 0, 0, 0, 0, 819.2);
       }
-      for (const [ratio, col] of style.stops) grad.addColorStop(ratio / 255, cssColor(cxApplyRGBA(cx, col)));
+      for (const [ratio, col] of style.stops) grad.addColorStop(ratio / 255, cssColor(colour(col)));
       ctx.fillStyle = grad;
       // Pad: cover the whole clip region generously in gradient space.
       ctx.fillRect(-819.2 * 64, -819.2 * 64, 819.2 * 128, 819.2 * 128);
       ctx.restore();
     } else if (t === 'bitmap') {
-      const src = this.bitmapSource(style.id, cx, lib);
+      const src = this.bitmapSource(style.id, cx, lib, cm);
       if (!src) return;
       ctx.save();
       ctx.clip(path, 'evenodd');
@@ -236,10 +270,11 @@ export class Renderer {
     }
   }
 
-  strokePath(ctx, path, style, m, cx) {
+  strokePath(ctx, path, style, m, cx, cm) {
     this.setTransform(ctx, m);
     ctx.globalAlpha = 1;
-    const col = style.c ? cxApplyRGBA(cx, style.c) : [0, 0, 0, 255];
+    const c = style.c || [0, 0, 0, 255];
+    const col = cxApplyRGBA(cx, cm ? cmApply(cm, c) : c);
     ctx.strokeStyle = cssColor(col);
     // Width 0 is a hairline: one device pixel at any scale.
     const sx = Math.sqrt(m[0] * m[0] + m[1] * m[1]);
@@ -252,11 +287,45 @@ export class Renderer {
   }
 
   // ---- bitmaps -----------------------------------------------------------------------
-  bitmapSource(id, cx, lib) {
-    const img = lib.bitmaps.get(id);
+  bitmapSource(id, cx, lib, cm) {
+    let img = lib.bitmaps.get(id);
     if (!img) return null;
+    let key = `${lib.movie}:${id}`;
+    if (cm) [img, key] = this.colourMatrixed(key, img, cm);
     if (cxIsIdentity(cx)) return img;
-    return this.tinted(`${lib.movie}:${id}`, img, cx);
+    return this.tinted(key, img, cx);
+  }
+
+  // A bitmap put through a colour matrix (on unpremultiplied colour, as Flash's filter),
+  // kept in the same cache as tints.  Returns [image, cache key].
+  colourMatrixed(key, img, cm) {
+    const k = key + '|cm:' + cm.join(',');
+    let c = this.tints.get(k);
+    if (c) {
+      this.tints.delete(k);
+      this.tints.set(k, c);
+      return [c, k];
+    }
+    const w = img.width || img.naturalWidth, h = img.height || img.naturalHeight;
+    c = document.createElement('canvas');
+    c.width = w;
+    c.height = h;
+    const g = c.getContext('2d', { willReadFrequently: true });
+    g.drawImage(img, 0, 0);
+    if (w && h) {
+      const d = g.getImageData(0, 0, w, h);
+      const p = d.data;
+      const px = [0, 0, 0, 0];
+      for (let i = 0; i < p.length; i += 4) {
+        px[0] = p[i]; px[1] = p[i + 1]; px[2] = p[i + 2]; px[3] = p[i + 3];
+        const o = cmApply(cm, px);
+        p[i] = o[0]; p[i + 1] = o[1]; p[i + 2] = o[2]; p[i + 3] = o[3];
+      }
+      g.putImageData(d, 0, 0);
+    }
+    this.tints.set(k, c);
+    this.tintPixels += w * h;
+    return [c, k];
   }
 
   tinted(key, img, cx) {
@@ -286,13 +355,21 @@ export class Renderer {
       g.putImageData(d, 0, 0);
     }
     this.tints.set(k, c);
-    if (this.tints.size > 600) this.tints.delete(this.tints.keys().next().value);
+    // Colour tweens make a new tint every frame; keep about 64MB of them.
+    this.tintPixels += w * h;
+    while (this.tintPixels > 16e6 && this.tints.size > 1) {
+      const [oldKey, old] = this.tints.entries().next().value;
+      this.tints.delete(oldKey);
+      this.tintPixels -= old.width * old.height;
+    }
     return c;
   }
 
-  drawBitmapChar(ctx, id, m, cx, lib, smooth) {
-    const img = lib.bitmaps.get(id);
+  drawBitmapChar(ctx, id, m, cx, lib, smooth, cm) {
+    let img = lib.bitmaps.get(id);
     if (!img) return;
+    let key = `${lib.movie}:${id}`;
+    if (cm) [img, key] = this.colourMatrixed(key, img, cm);
     this.setTransform(ctx, m);
     ctx.imageSmoothingEnabled = this.smoothing(smooth);
     if (cxIsIdentity(cx)) {
@@ -304,7 +381,7 @@ export class Renderer {
       ctx.globalAlpha = 1;
     } else {
       ctx.globalAlpha = 1;
-      ctx.drawImage(this.tinted(`${lib.movie}:${id}`, img, cx), 0, 0);
+      ctx.drawImage(this.tinted(key, img, cx), 0, 0);
     }
   }
 

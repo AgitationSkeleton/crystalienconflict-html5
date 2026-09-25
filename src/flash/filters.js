@@ -136,8 +136,13 @@ export class GLFilters {
 
   software() {
     const gl = this.gl;
-    const ext = gl.getExtension('WEBGL_debug_renderer_info');
-    const name = String(ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER));
+    // Firefox reports the real (sanitised) renderer here; Chromium and Safari only a
+    // generic name, with the real one behind an extension Firefox has deprecated.
+    let name = String(gl.getParameter(gl.RENDERER));
+    if (/^(webkit webgl|webkit|mozilla)$/i.test(name)) {
+      const ext = gl.getExtension('WEBGL_debug_renderer_info');
+      if (ext) name = String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL));
+    }
     return /swiftshader|llvmpipe|softpipe|software|basic render/i.test(name);
   }
 
