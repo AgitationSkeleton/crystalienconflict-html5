@@ -172,6 +172,10 @@ export function installBuiltins(player) {
     },
   };
 
+  // ASnative(800, 2) is Key.isDown itself, fetched from the player's native table.  The
+  // game asks it about key code 4, the middle mouse button (see Player.mouseButton).
+  B.ASnative = (a, b) => (+a === 800 && +b === 2 ? B.Key.isDown : undefined);
+
   // ---- Mouse -----------------------------------------------------------------------------
   B.Mouse = {
     hide: () => { player.mouseHidden = true; player.updateCursor(); return 1; },

@@ -342,6 +342,8 @@ export class Player {
     }
     this.runQueue();
     this.updateHover();
+    // A text field's caret blinks about twice a second (12 frames on, 12 off).
+    this.text.caretOn = Math.floor((this.frame - this.text.caretFrom) / 12) % 2 === 0;
   }
 
   stepClip(clip) {
@@ -408,10 +410,20 @@ export class Player {
     this.updateHover();
   }
 
+  // Flash Player on Windows reported mouse buttons to Key.isDown as virtual-key codes:
+  // 1 left, 2 right, 4 middle.  Only the left button did anything else.
+  mouseButton(domButton, down) {
+    const code = { 0: 1, 1: 4, 2: 2 }[domButton];
+    if (code === undefined) return;
+    if (down) this.keys.add(code);
+    else this.keys.delete(code);
+  }
+
   pointerDown(x, y) {
     this.mouse = [x, y];
     this.sound.unlock();
     this.mouseDown = true;
+    this.keys.add(1);
     this.updateHover();
     if (this.hover) {
       this.pressed = this.hover;
@@ -428,6 +440,7 @@ export class Player {
   pointerUp(x, y) {
     this.mouse = [x, y];
     this.mouseDown = false;
+    this.keys.delete(1);
     this.updateHover();
     const p = this.pressed;
     this.pressed = null;

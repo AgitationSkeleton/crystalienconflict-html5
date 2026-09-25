@@ -86,6 +86,17 @@ canvas.addEventListener('pointercancel', (ev) => {
   const [x, y] = stagePoint(ev);
   if (player.mouseDown) player.pointerUp(x, y);
 });
+// The middle and right buttons only ever reached the game as key codes (the game uses the
+// middle one to deselect).  Middle-clicking must not start the browser's autoscroll.
+canvas.addEventListener('mousedown', (ev) => {
+  if (ev.button === 0) return;
+  player.mouseButton(ev.button, true);
+  ev.preventDefault();
+});
+addEventListener('mouseup', (ev) => {
+  if (ev.button !== 0) player.mouseButton(ev.button, false);
+});
+canvas.addEventListener('auxclick', (ev) => ev.preventDefault());
 // The original replaced Flash's right-click menu with a single "www.lego.com" item; here
 // right-click does nothing rather than show the browser's menu over the game.
 canvas.addEventListener('contextmenu', (ev) => ev.preventDefault());
@@ -108,7 +119,7 @@ addEventListener('keyup', (ev) => {
   player.keyUp(ev);
   if (trapped(ev)) ev.preventDefault();
 });
-// Keys held when the window loses focus would otherwise stay down forever.
+// Keys and buttons held when the window loses focus would otherwise stay down forever.
 addEventListener('blur', () => {
   for (const code of [...player.keys]) player.keyUp({ keyCode: code, key: '' });
 });

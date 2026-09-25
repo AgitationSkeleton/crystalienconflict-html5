@@ -14,6 +14,7 @@ export class TextEngine {
   constructor(player) {
     this.player = player;
     this.caretOn = true;
+    this.caretFrom = 0;
   }
 
   // ---- variable binding --------------------------------------------------------------
@@ -209,6 +210,7 @@ export class TextEngine {
   // The one editable field in the game is the cheat-code entry.  Typing edits the text
   // and writes it back to the bound variable, which is what the OK button reads.
   keyInput(field, ev) {
+    this.caretFrom = this.player.frame;          // typing shows the caret at once
     const ch = field.$char;
     if (ev.key === 'Backspace') {
       field.$text = [...field.$text].slice(0, -1).join('');

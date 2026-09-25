@@ -12,6 +12,7 @@ Actions (stage coordinates; the viewport is the 600x400 stage at 1:1 unless --sc
     down X Y / up X Y  press / release
     move X Y           move the mouse
     key NAME           press and release a key (Playwright names: Space, Enter, a, ...)
+    keydown NAME       hold a key down (keyup NAME releases it)
     type TEXT          type text
     eval JS            evaluate JS in the page and print the result
     boot               click LOAD GAME and wait until the game's first frame has run
@@ -62,6 +63,8 @@ def main():
     ap.add_argument('actions', nargs='*')
     ap.add_argument('--port', type=int, default=8765)
     ap.add_argument('--scale', type=float, default=1.0)
+    ap.add_argument('--viewport', help='WxH in CSS pixels (default: the stage times --scale)')
+    ap.add_argument('--dpr', type=float, default=1.0, help='device pixel ratio')
     ap.add_argument('--page', default='index.html')
     ap.add_argument('--root', default=ROOT)
     ap.add_argument('--test', action='store_true', help='stopped clock, seeded random numbers')
@@ -73,7 +76,19 @@ def main():
     s = args.scale
     with sync_playwright() as p:
         browser = p.chromium.launch(args=['--autoplay-policy=no-user-gesture-required'])
-        page = browser.new_page(viewport={'width': int(600 * s), 'height': int(400 * s)})
+        if args.viewport:
+            vw, vh = [int(v) for v in args.viewport.lower().split('x')]
+        else:
+            vw, vh = int(600 * s), int(400 * s)
+        page = browser.new_page(viewport={'width': vw, 'height': vh}, device_scale_factor=args.dpr)
+
+        def to_page(x, y):
+            # Stage coordinates -> CSS pixels, through the letterboxed stage (the reference
+            # page has no player object, and fills the same viewport with the same fit).
+            return page.evaluate("""([x, y]) => {
+                const W = innerWidth, H = innerHeight, k = Math.min(W / 600, H / 400);
+                return [(W - 600 * k) / 2 + x * k, (H - 400 * k) / 2 + y * k];
+            }""", [x, y])
         page.on('console', lambda m: log.append('[%s] %s' % (m.type, m.text)))
         page.on('pageerror', lambda e: log.append('[pageerror] %s' % e))
         # Chromium reports some of the parallel library downloads as net::ERR_ABORTED even
@@ -95,7 +110,7 @@ def main():
             elif op == 'shot':
                 page.screenshot(path=os.path.join(args.out, rest + '.png'))
             elif op in ('click', 'down', 'up', 'move'):
-                x, y = [float(v) * s for v in rest.split()]
+                x, y = to_page(*[float(v) for v in rest.split()])
                 page.mouse.move(x, y)
                 if op == 'click':
                     # The game polls the mouse once a frame, so a click has to span frames,
@@ -112,12 +127,16 @@ def main():
                     page.mouse.up()
             elif op == 'key':
                 page.keyboard.press(rest)
+            elif op == 'keydown':
+                page.keyboard.down(rest)
+            elif op == 'keyup':
+                page.keyboard.up(rest)
             elif op == 'type':
                 page.keyboard.type(rest, delay=60)
             elif op == 'boot' and args.test:
                 page.wait_for_function('() => window.player && player.levels[0]', timeout=60000)
                 page.evaluate('() => { while (player.levels[0].$cur < 15) __step(1); }')
-                page.mouse.click(300 * s, 373 * s)
+                page.mouse.click(*to_page(300, 373))
                 page.wait_for_function('() => player.levels[1] && !player.levels[1].$pending', timeout=180000)
                 page.evaluate('() => { let n = 0; while (player.levels[1].$cur !== 201 && n++ < 1000) __step(1); }')
                 # The game's first frame loads dialogue.xml and builds its Panel when it
@@ -125,7 +144,7 @@ def main():
                 page.wait_for_function('() => player.levels[1].panel', timeout=60000)
             elif op == 'boot':
                 page.wait_for_function('() => window.player && player.levels[0] && player.levels[0].$cur >= 15', timeout=60000)
-                page.mouse.click(300 * s, 373 * s)
+                page.mouse.click(*to_page(300, 373))
                 page.wait_for_function('() => player.levels[1] && !player.levels[1].$pending && player.levels[1].$cur === 201', timeout=180000)
             elif op == 'step':
                 page.evaluate('(n) => __step(n)', int(rest))
