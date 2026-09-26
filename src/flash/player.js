@@ -393,8 +393,12 @@ export class Player {
     clip.$advance();
   }
 
-  draw() {
+  // alpha: how far the clock has got from this frame towards the next (0-1), for drawing what
+  // moved part of the way (smooth drawing, render.js); 1 draws everything where it is.
+  draw(alpha = 1) {
     const bg = this.levels[0] ? this.levels[0].$lib.json.background : [0, 0, 0, 255];
+    this.renderer.ipFrame = alpha < 1 ? this.frame : -1;
+    this.renderer.ipAlpha = alpha;
     this.renderer.render(this.levels, bg);
   }
 

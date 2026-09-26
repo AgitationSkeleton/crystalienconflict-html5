@@ -689,7 +689,9 @@ function makeFlashPackage(player) {
     this.$canvas = document.createElement('canvas');
     this.$canvas.width = w;
     this.$canvas.height = h;
-    this.$ctx = this.$canvas.getContext('2d');
+    // (In memory, not on the GPU: the game reads its bitmaps' pixels, and reading from the GPU
+    // waits for everything it has been given to draw -- milliseconds, each time.)
+    this.$ctx = this.$canvas.getContext('2d', { willReadFrequently: true });
     this.$id = bmdIds++;
     this.$version = 0;
     this.transparent = transparent !== false;

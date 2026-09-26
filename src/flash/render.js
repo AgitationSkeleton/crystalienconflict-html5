@@ -29,6 +29,9 @@ export class Renderer {
     this.player = player;
     this.stageW = 600;
     this.stageH = 400;
+    this.pathsIn = new WeakMap();     // path -> it in a gradient's space (see pathIn)
+    this.ipFrame = -1;                // smooth drawing: the frame being drawn part of the way to
+    this.ipAlpha = 1;                 // the next, and how far (see smoothed())
     this.scale = 1;
     this.offsetX = 0;
     this.offsetY = 0;
@@ -89,7 +92,7 @@ export class Renderer {
   // ---- the tree ----------------------------------------------------------------------
   draw(ctx, obj, parentM, parentCx) {
     if (!obj.$visible || obj.$removed || obj.$maskOf) return;     // a setMask() mask is never drawn
-    const m = mul(parentM, obj.$m);
+    const m = obj.$ipFrame === this.ipFrame || obj.$pointer ? this.smoothed(ctx, obj, parentM) : mul(parentM, obj.$m);
     const cx = cxMul(parentCx, obj.$cx);
     if (cx && cx[3] <= 0 && cx[7] <= 0) return;           // fully transparent
     const mask = obj.$maskClip;
@@ -111,6 +114,28 @@ export class Renderer {
     const fl = this.potentFilters(obj.$filters);
     if (fl) return this.drawWithFilters(ctx, obj, m, cx, fl);
     this.drawContent(ctx, obj, m, cx);
+  }
+
+  // Smooth drawing (the screen refreshes more often than the game's 23 frames a second): an
+  // object a script moved in the last frame is drawn part of the way from where it was to where
+  // it is, by how far the clock has got towards the next frame -- unless it was only just made
+  // or shown, or it jumped (160 pixels is further than anything travels in a frame).  And the
+  // game's own pointer is drawn where the mouse is now, not where it was at the last frame.
+  smoothed(ctx, obj, parentM) {
+    const l = obj.$m;
+    if (obj.$pointer) {
+      const m = mul(parentM, l);
+      const mouse = this.player && this.player.mouse;
+      if (ctx === this.ctx && mouse) {
+        m[4] = this.offsetX + mouse[0] * this.scale;
+        m[5] = this.offsetY + mouse[1] * this.scale;
+      }
+      return m;
+    }
+    const dx = l[4] - obj.$ipX, dy = l[5] - obj.$ipY;
+    if (obj.$born === this.ipFrame || obj.$shown === this.ipFrame || dx * dx + dy * dy > 160 * 160) return mul(parentM, l);
+    const back = 1 - this.ipAlpha;
+    return mul(parentM, [l[0], l[1], l[2], l[3], l[4] - dx * back, l[5] - dy * back]);
   }
 
   // A colour matrix on a single shape needs no offscreen work: nothing inside one shape
@@ -135,7 +160,7 @@ export class Renderer {
 
   drawContent(ctx, obj, m, cx) {
     if (obj instanceof MovieClip) {
-      if (obj.$gfx && obj.$gfx.ops.length) this.drawGraphics(ctx, obj.$gfx, m, cx);
+      if (obj.$gfx && obj.$gfx.ops.length) this.drawGraphics(ctx, obj.$gfxFrame === this.ipFrame && obj.$gfxPrev ? this.blendedGfx(obj) : obj.$gfx, m, cx);
       this.drawChildren(ctx, obj.$children, m, cx);
     } else if (obj instanceof ShapeObj) {
       this.drawShape(ctx, obj, m, cx);
@@ -249,9 +274,11 @@ export class Renderer {
       ctx.fill(path, 'evenodd');
     } else if (t === 'linear' || t === 'radial' || t === 'focal') {
       const g = style.m;
-      // Gradients live in a +/-819.2px square; draw them in that space.
-      ctx.save();
-      ctx.clip(path, 'evenodd');
+      // Gradients live in a +/-819.2px square; the shape is filled in that space (taken there
+      // by the inverse of the gradient's matrix).  (Not a square of gradient clipped to the
+      // shape: the browser makes a clip as a mask on the CPU, at every drawing.)
+      const inGradient = this.pathIn(path, g);
+      if (!inGradient) return;
       this.setTransform(ctx, mul(m, g));
       let grad;
       if (t === 'linear') grad = ctx.createLinearGradient(-819.2, 0, 819.2, 0);
@@ -261,25 +288,42 @@ export class Renderer {
       }
       for (const [ratio, col] of style.stops) grad.addColorStop(ratio / 255, cssColor(colour(col)));
       ctx.fillStyle = grad;
-      // Pad: cover the whole clip region generously in gradient space.
-      ctx.fillRect(-819.2 * 64, -819.2 * 64, 819.2 * 128, 819.2 * 128);
-      ctx.restore();
+      ctx.fill(inGradient, 'evenodd');
     } else if (t === 'bitmap') {
+      // The shape filled with the bitmap as a pattern (not a rectangle of it clipped to the
+      // shape, as above).
       const src = this.bitmapSource(style.id, cx, lib, cm);
-      if (!src) return;
-      ctx.save();
-      ctx.clip(path, 'evenodd');
-      const bm = mul(m, style.m);
-      this.setTransform(ctx, bm);
+      const p = src && this.pattern(ctx, src, style.repeat, style.m);
+      if (!p) return;
       ctx.imageSmoothingEnabled = this.smoothing(style.smooth);
-      if (style.repeat) {
-        ctx.fillStyle = ctx.createPattern(src, 'repeat');
-        ctx.fillRect(-1e5, -1e5, 2e5, 2e5);          // clipped to the path above
-      } else {
-        ctx.drawImage(src, 0, 0);
-      }
-      ctx.restore();
+      ctx.fillStyle = p;
+      ctx.fill(path, 'evenodd');
     }
+  }
+
+  // A pattern of an image placed by the matrix m (from the image to the space being filled),
+  // repeated or once.
+  pattern(ctx, img, repeat, m) {
+    const p = ctx.createPattern(img, repeat ? 'repeat' : 'no-repeat');
+    if (p) p.setTransform({ a: m[0], b: m[1], c: m[2], d: m[3], e: m[4], f: m[5] });
+    return p;
+  }
+
+  // A path taken into the space of the matrix g (by g's inverse), kept with the path for as
+  // long as g is the same.  Null when g flattens everything (nothing to fill).
+  pathIn(path, g) {
+    const key = g.join(',');
+    const had = this.pathsIn.get(path);
+    if (had && had.key === key) return had.p;
+    const det = g[0] * g[3] - g[1] * g[2];
+    let p = null;
+    if (det && Number.isFinite(det)) {
+      const [a, b, c, d, e, f] = invert(g);
+      p = new Path2D();
+      p.addPath(path, { a, b, c, d, e, f });
+    }
+    this.pathsIn.set(path, { key, p });
+    return p;
   }
 
   strokePath(ctx, path, style, m, cx, cm) {
@@ -414,6 +458,60 @@ export class Renderer {
   }
 
   // ---- the drawing API ------------------------------------------------------------------
+  // Smooth drawing: a clip drawn again in the last frame, by the same steps as before (the same
+  // kinds of line, fill and move, the same bitmaps), is drawn with its numbers part of the way
+  // from the old drawing's to the new -- points and bitmap fills' placings -- unless one of them
+  // jumped (160 pixels).  Otherwise, or drawn differently, it is the new drawing.
+  blendedGfx(obj) {
+    const now = obj.$gfx, was = obj.$gfxPrev;
+    if (now.$blendFrom !== was) {
+      now.$blendFrom = was;
+      now.$blendable = this.sameSteps(was.ops, now.ops);
+    }
+    if (!now.$blendable) return now;
+    const t = this.ipAlpha, a = was.ops, b = now.ops;
+    const ops = new Array(b.length);
+    for (let i = 0; i < b.length; i++) {
+      const p = a[i], q = b[i];
+      switch (q[0]) {
+        case 'm':
+        case 'l':
+          ops[i] = [q[0], p[1] + (q[1] - p[1]) * t, p[2] + (q[2] - p[2]) * t];
+          break;
+        case 'q':
+          ops[i] = ['q', p[1] + (q[1] - p[1]) * t, p[2] + (q[2] - p[2]) * t, p[3] + (q[3] - p[3]) * t, p[4] + (q[4] - p[4]) * t];
+          break;
+        case 'bb': {
+          const pm = p[1].m, qm = q[1].m;
+          ops[i] = ['bb', Object.assign({}, q[1], { m: qm.map((v, k) => pm[k] + (v - pm[k]) * t) })];
+          break;
+        }
+        default:
+          ops[i] = q;
+      }
+    }
+    return { ops, bounds: now.bounds };
+  }
+
+  sameSteps(a, b) {
+    if (!a || a.length !== b.length) return false;
+    const far = (x, y) => Math.abs(x - y) > 160;
+    for (let i = 0; i < b.length; i++) {
+      const p = a[i], q = b[i];
+      if (p[0] !== q[0]) return false;
+      if (q[0] === 'm' || q[0] === 'l') {
+        if (far(p[1], q[1]) || far(p[2], q[2])) return false;
+      } else if (q[0] === 'q') {
+        if (far(p[1], q[1]) || far(p[2], q[2]) || far(p[3], q[3]) || far(p[4], q[4])) return false;
+      } else if (q[0] === 'bb') {
+        const pm = p[1].m, qm = q[1].m;
+        if (p[1].bmd !== q[1].bmd || far(pm[4], qm[4]) || far(pm[5], qm[5])) return false;
+        for (let k = 0; k < 4; k++) if (Math.abs(pm[k] - qm[k]) > 0.5) return false;
+      }
+    }
+    return true;
+  }
+
   drawGraphics(ctx, g, m, cx) {
     let fill = null;        // {kind, style}
     let fillPath = null;
@@ -445,22 +543,23 @@ export class Renderer {
             Math.max(0, Math.min(255, Math.round(s.a * 2.55)))]));
           ctx.fill(fillPath, 'evenodd');
         } else if (fill.kind === 'bitmap') {
+          // (As fillPath's bitmap fills: the shape filled with a pattern, not clipped.  Faded
+          // only, it fades by the canvas's alpha rather than by a faded copy.)
           const s = fill.style;
           const bmd = s.bmd;
           const src = bmd && (bmd.$canvas || null);
           if (src) {
-            ctx.save();
-            ctx.clip(fillPath, 'evenodd');
-            this.setTransform(ctx, mul(m, s.m));
-            ctx.imageSmoothingEnabled = this.smoothing(s.smooth);
-            const img = cxIsIdentity(cx) ? src : this.tinted(`bmd${bmd.$id}:${bmd.$version}`, src, cx);
-            if (s.repeat) {
-              ctx.fillStyle = ctx.createPattern(img, 'repeat');
-              ctx.fillRect(-1e5, -1e5, 2e5, 2e5);
-            } else {
-              ctx.drawImage(img, 0, 0);
+            let img = src;
+            if (cxIsIdentity(cx)) ctx.globalAlpha = 1;
+            else if (cxAlphaOnly(cx) && cx[3] <= 256 && cx[7] === 0) ctx.globalAlpha = Math.max(0, cx[3] / 256);
+            else img = this.tinted(`bmd${bmd.$id}:${bmd.$version}`, src, cx);
+            const p = this.pattern(ctx, img, s.repeat, s.m);
+            if (p) {
+              ctx.imageSmoothingEnabled = this.smoothing(s.smooth);
+              ctx.fillStyle = p;
+              ctx.fill(fillPath, 'evenodd');
             }
-            ctx.restore();
+            ctx.globalAlpha = 1;
           }
         }
       }

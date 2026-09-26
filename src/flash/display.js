@@ -33,6 +33,20 @@ export class DisplayObject {
     this.$maskClip = null;        // setMask(): the clip masking this one
     this.$maskOf = null;          // setMask(): the clip this one masks
     this.$id = nextInstance++;
+    this.$born = player ? player.frame : 0;   // (smooth drawing: the frame it was made in)
+  }
+
+  // Smooth drawing: where a script found the object when it first moved it in a frame, so that
+  // a drawing made between two frames can show it part of the way (render.js, smoothed()).
+  $moving() {
+    const p = this.$player;
+    const f = p ? p.frame : 0;
+    if (this.$ipFrame !== f) {
+      this.$ipFrame = f;
+      this.$ipX = this.$m[4];
+      this.$ipY = this.$m[5];
+      if (p) p.lastMove = f;
+    }
   }
 
   // ---- geometry ---------------------------------------------------------------------
@@ -107,6 +121,7 @@ export class DisplayObject {
   set _x(v) {
     v = +v;
     if (Number.isNaN(v) || this.$removed) return;
+    this.$moving();
     this.$m[4] = twip(v);
     this.$scripted = true;
   }
@@ -115,6 +130,7 @@ export class DisplayObject {
   set _y(v) {
     v = +v;
     if (Number.isNaN(v) || this.$removed) return;
+    this.$moving();
     this.$m[5] = twip(v);
     this.$scripted = true;
   }
@@ -169,7 +185,9 @@ export class DisplayObject {
   get _visible() { return this.$removed ? undefined : this.$visible; }
   set _visible(v) {
     if (this.$removed) return;
+    const was = this.$visible;
     this.$visible = typeof v === 'string' ? v !== '' && v !== '0' && v !== 'false' : !!v && v === v;
+    if (this.$visible && !was) this.$shown = this.$player ? this.$player.frame : 0;   // (smooth drawing)
   }
 
   get _width() {
@@ -800,7 +818,18 @@ export class MovieClip extends DisplayObject {
   }
 
   clear() {
-    if (this.$gfx) this.$gfx = new Graphics();
+    if (this.$gfx) {
+      // (Smooth drawing: the last frame's drawing is kept, the first time it is cleared in a
+      // frame, to be blended with this frame's -- render.js, blendedGfx.)
+      const p = this.$player;
+      const f = p ? p.frame : 0;
+      if (this.$gfxFrame !== f) {
+        this.$gfxPrev = this.$gfx;
+        this.$gfxFrame = f;
+        if (p) p.lastMove = f;
+      }
+      this.$gfx = new Graphics();
+    }
   }
 
   lineStyle(thickness, rgb, alpha) {

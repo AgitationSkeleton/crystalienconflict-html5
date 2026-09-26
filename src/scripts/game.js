@@ -1559,6 +1559,12 @@
          };
          this.update = function ()
          {
+            // (Speed: the functions used for every cell of the map, looked up once.  Each name a
+            // script reads is looked up through its clip's scope, at some cost: eight times a
+            // cell, on a big map, it came to 35 milliseconds, and an update runs twice.)
+            var S = String;
+            var N = Number;
+            var Rectangle = flash.geom.Rectangle;
             var _loc14_ = this.parent?.radar?.shroudBitmap;
             _loc14_?.fillRect?.(_loc14_?.rectangle, 4278190080);
             var _loc13_;
@@ -1589,7 +1595,7 @@
                   if(this.tiles?.[_loc2_]?.[_loc3_])
                   {
                      _loc8_ = "s1111";
-                     _loc14_?.fillRect?.(new flash.geom.Rectangle((_loc2_ - 1.5) * this.parent?.radar?.tileSize + this.parent?.radar?.marginX, (_loc3_ - 1.5) * this.parent?.radar?.tileSize + this.parent?.radar?.marginY, this.parent?.radar?.tileSize * 2, this.parent?.radar?.tileSize * 2), 0);
+                     _loc14_?.fillRect?.(new Rectangle((_loc2_ - 1.5) * this.parent?.radar?.tileSize + this.parent?.radar?.marginX, (_loc3_ - 1.5) * this.parent?.radar?.tileSize + this.parent?.radar?.marginY, this.parent?.radar?.tileSize * 2, this.parent?.radar?.tileSize * 2), 0);
                   }
                   else
                   {
@@ -1601,7 +1607,7 @@
                      _loc12_ = this.tiles?.[_loc6_]?.[_loc3_] || this.tiles?.[_loc6_]?.[_loc7_] || this.tiles?.[_loc2_]?.[_loc7_];
                      _loc11_ = this.tiles?.[_loc2_]?.[_loc7_] || this.tiles?.[_loc5_]?.[_loc7_] || this.tiles?.[_loc5_]?.[_loc3_];
                      _loc9_ = this.tiles?.[_loc5_]?.[_loc3_] || this.tiles?.[_loc5_]?.[_loc4_] || this.tiles?.[_loc2_]?.[_loc4_];
-                     _loc8_ = "s" + String?.(Number?.(_loc13_)) + String?.(Number?.(_loc12_)) + String?.(Number?.(_loc11_)) + String?.(Number?.(_loc9_));
+                     _loc8_ = "s" + S?.(N?.(_loc13_)) + S?.(N?.(_loc12_)) + S?.(N?.(_loc11_)) + S?.(N?.(_loc9_));
                   }
                   _loc10_ = this.MC?.["shroud_" + _loc2_ + "_" + _loc3_];
                   _loc10_?.gotoAndStop?.(_loc8_);
@@ -7409,6 +7415,11 @@
          this.keyFIRE = fire;
          this.UP = this.RIGHT = this.DOWN = this.LEFT = this.FIRE = this.MOUSEDOWN = false;
          this.cursorMC = this.parent?.parent?.hud?.MC?.attachMovie?.("cursor", "cursor", 9999999);
+         // (Smooth drawing: the pointer is drawn where the mouse is at the moment of drawing.)
+         if(this.cursorMC)
+         {
+            this.cursorMC.$pointer = true;
+         }
          this.dragMC = this.parent?.arena?.MC?.attachMovie?.("drag", "drag", 9999997);
          __as.set(this.dragMC, "_visible", false);
          this.indicatorMC = this.parent?.arena?.MC?.attachMovie?.("indicator", "indicator", 9999996);

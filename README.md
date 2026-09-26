@@ -51,6 +51,9 @@ same parameters, and the loader loads the game exactly as before.
   lego.com.
 - **Size.** The 600×400 stage is scaled to fit the window, letterboxed, as Flash's
   "show all" mode would.
+- **Smoothness.** The game runs at Flash's 23 frames a second, but the screen is drawn at
+  every refresh: what moved in the last frame is shown part of the way to where it is, and
+  the game's pointer is drawn where the mouse is.
 - **Saving.** Progress goes to the browser's localStorage. Flash wrote its save when
   the player closed; this also writes it whenever the page is hidden, and every few
   seconds if it changed, because a browser tab can be closed without warning.

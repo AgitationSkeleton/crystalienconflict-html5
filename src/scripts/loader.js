@@ -129,6 +129,11 @@
       {
          this.parent = parent;
          this.MC = this.parent?.MC?.attachMovie?.("cursor", "cursor", 10000);
+         // (Smooth drawing: the pointer is drawn where the mouse is at the moment of drawing.)
+         if(this.MC)
+         {
+            this.MC.$pointer = true;
+         }
          this.MCdraw = this.parent?.MC?.createEmptyMovieClip?.("draw", 9999);
          this.filterGlow = new flash.filters.GlowFilter(16777215, 100, 12, 12, 2, 1, false, false);
          __as.set(MCdraw, "filters", new Array(this.filterGlow));
