@@ -30,6 +30,13 @@ const BUTTON_KEYS = {
   Enter: 13, ArrowUp: 14, ArrowDown: 15, PageUp: 16, PageDown: 17, Tab: 18, Escape: 19, ' ': 32,
 };
 
+// Which of two display paths comes later (on top): > 0 if a does.
+function comparePaths(a, b) {
+  const n = Math.min(a.length, b.length);
+  for (let i = 0; i < n; i++) if (a[i] !== b[i]) return a[i] - b[i];
+  return a.length - b.length;
+}
+
 export class Player {
   constructor(canvas, opts = {}) {
     this.canvas = canvas;
@@ -43,6 +50,7 @@ export class Player {
     this.sound = new SoundSystem(this);
     this.global = {};                  // _global
     this.builtins = {};
+    this.buttons = new Set();          // (every button placed, for finding the one under the mouse)
     this.queue = [];
     this.scopes = new WeakMap();
     this.mouse = [0, 0];
@@ -197,6 +205,7 @@ export class Player {
       child.$loaded = true;
     } else if (child instanceof ButtonObj) {
       child.$construct();
+      this.buttons.add(child);
     } else if (child instanceof EditText) {
       this.text.bind(child);
     }
@@ -222,10 +231,12 @@ export class Player {
   // before its first frame places any children, so they run ahead of it.
   track(clip) {
     this.clips.add(clip);
+    this.clipsDirty = true;
   }
 
   forget(clip) {
     this.clips.delete(clip);
+    this.clipsDirty = true;
     this.withEvents.delete(clip);
     if (this.focus && this.focus.$removed) this.focus = null;
   }
@@ -348,8 +359,19 @@ export class Player {
     // which script has the last word when two change the same clip in one frame: the
     // game's main loop, _level1's onEnterFrame, runs after the frame scripts of the clips
     // it drives, so a clip it restarts is not halted by a stop() its old frame queued.
-    const clips = [...this.clips];
-    for (let i = clips.length - 1; i >= 0; i--) this.stepClip(clips[i]);
+    // (Speed: the list is made again only when clips come or go; and a clip that is stopped
+    // and has no enterFrame handler to run -- a map tile, say, of which there are thousands --
+    // has nothing to do in a frame.)
+    if (this.clipsDirty || !this.clipList) {
+      this.clipList = [...this.clips];
+      this.clipsDirty = false;
+    }
+    const clips = this.clipList;
+    for (let i = clips.length - 1; i >= 0; i--) {
+      const c = clips[i];
+      if (!c.$playing && !c.$events && typeof c.onEnterFrame !== 'function') continue;
+      this.stepClip(c);
+    }
     this.runQueue();
     this.updateHover();
     // A text field's caret blinks about twice a second (12 frames on, 12 off).
@@ -493,18 +515,32 @@ export class Player {
   }
 
   buttonAt(x, y) {
-    // Topmost enabled, visible button whose hit area contains the point.
+    // Topmost enabled, visible button whose hit area contains the point.  (Speed: from the
+    // buttons there are, not by walking every clip on stage; the topmost of those hit is the
+    // last in display order.)
     const visibleChain = (o) => {
       for (; o; o = o.$parent) if (!o.$visible || o.$removed) return false;
       return true;
     };
-    let best = null;
-    for (const b of this.allButtons()) {
-      if (!b.$enabled || !visibleChain(b)) continue;
+    let best = null, bestPath = null;
+    for (const b of this.buttons) {
+      if (b.$removed) { this.buttons.delete(b); continue; }
+      if (!b.$enabled || !visibleChain(b) || !b.$isOnStage()) continue;
       const [lx, ly] = apply(invert(b.$worldMatrix()), x, y);
-      if (b.$hitArea(lx, ly)) best = b;       // later in display order = on top
+      if (!b.$hitArea(lx, ly)) continue;
+      const path = this.displayPath(b);
+      if (!best || comparePaths(path, bestPath) > 0) { best = b; bestPath = path; }
     }
     return best;
+  }
+
+  // Where an object comes in display order: its level, then its place among its parent's
+  // children at each step down.
+  displayPath(o) {
+    const path = [];
+    for (; o.$parent; o = o.$parent) path.push(o.$parent.$children.indexOf(o));
+    path.push(this.levels.indexOf(o));
+    return path.reverse();
   }
 
   updateHover() {

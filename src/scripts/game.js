@@ -2279,7 +2279,9 @@
             this.construct?.(this.constructingUnit);
             this.overOption = false;
             var _loc9_ = false;
-            var _loc10_ = this.MC?.hitTest?.(_xmouse, _ymouse, true);
+            // (Fixed: only where the list shows -- not what has scrolled out of sight under the
+            // arrows and the headings above it.)
+            var _loc10_ = this.MC?.hitTest?.(_xmouse, _ymouse, true) && this.mask?.hitTest?.(_xmouse, _ymouse, true);
             var _loc2_;
             var _loc6_;
             var _loc3_;
@@ -2482,7 +2484,18 @@
                   return true;
                }
             }
-            if(!this.MC?.hitTest?.(x, y, true))
+            // (Fixed: a click on an arrow while its list is still scrolling is the arrow's too.)
+            var arrows = new Array("buildings_up", "buildings_down", "units_up", "units_down");
+            var arrow = 0;
+            while(arrow < arrows.length)
+            {
+               if(this.MC?._parent?.[arrows[arrow]]?._visible && this.MC?._parent?.[arrows[arrow]]?.hitTest?.(x, y, true))
+               {
+                  return true;
+               }
+               arrow++;
+            }
+            if(!this.MC?.hitTest?.(x, y, true) || !this.mask?.hitTest?.(x, y, true))
             {
                return false;
             }
