@@ -1,8 +1,10 @@
-# High-score server: plan
+# High-score server
 
-Status: planned, not built. The game's own high-score code is intact in the port; it
-only needs a server to talk to, and the port's `LoadVars.sendAndLoad` needs to actually
-send (it is a no-op today, see `src/flash/as2.js`).
+Status: built. The server is the online version's Cloudflare Worker
+(`crystalienconflict-html5-online/server/`, deployed as `cacserver.viosarcade.xyz`; its
+README says how), and both ports talk to it through the game's own code: `LoadVars` in
+`src/flash/as2.js` now sends, `src/hiscore.js` asks for the name. What follows was the
+plan, and is what was built, but for the details noted at the end.
 
 ## What the game does
 
@@ -59,3 +61,14 @@ the original had.
 - Name prompt: the game's own style (an in-canvas box) or a plain page dialog.
 - Whether cac. and caconline. share one table or keep two (`gamename` can tell them
   apart).
+
+## As built
+
+- The server's address is `https://cacserver.viosarcade.xyz/hiscore` (`?server=URL` on the
+  page points the game at another, for testing).
+- Both ports share one table (`gamename` CrystAlienConflict).
+- The name is asked for in a plain page dialog each time a score is sent, the last name
+  filled in (the online version suggests its settings' name). The game still needs a
+  `username` to send at all, so the launcher parameters give it one.
+- A table shows each name's best score. Scores above 43,478 (a Conflict run under five
+  minutes) are refused, as are more than ten an hour from one address.

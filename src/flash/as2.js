@@ -295,13 +295,60 @@ export function installBuiltins(player) {
     this.visible = visible !== false;
   };
 
-  // ---- networking this game can no longer do ---------------------------------------------------
-  // High scores went to LEGO's servers and a tracker loaded from elsewhere; both are gone.
-  B.LoadVars = function LoadVars() {
-    this.send = () => false;
-    this.load = () => false;
-    this.sendAndLoad = () => false;
-    this.toString = () => '';
+  // ---- LoadVars: name=value pairs to and from a server ------------------------------------------
+  // The game uses it for one thing: sending a finished Conflict run's score to the high-score
+  // server (saveScore).  Its variables go as a form; a reply of name=value pairs lands in the
+  // target.  A score goes with the player's name, which LEGO's server knew from the login: the
+  // port asks for it (opts.scoreName) and adds it as `username`; no name, no score.
+  B.LoadVars = function LoadVars() {};
+  const varsOf = (o) => {
+    const q = new URLSearchParams();
+    for (const k of Object.keys(o)) {
+      const v = o[k];
+      if (k.charAt(0) === '$' || typeof v === 'function' || v === undefined) continue;
+      q.append(k, asString(v));
+    }
+    return q;
+  };
+  const deliver = (target, ok, raw) => {
+    if (!target) return;
+    if (ok) {
+      target.loaded = true;
+      try {
+        for (const [k, v] of new URLSearchParams(raw)) target[k] = v;
+      } catch (e) {
+        // (a reply that is not name=value pairs: onData still has it)
+      }
+    }
+    if (typeof target.onData === 'function') player.queueMethod(target, 'onData', ok ? raw : undefined);
+    else if (typeof target.onLoad === 'function') player.queueMethod(target, 'onLoad', ok);
+    player.runQueue();
+  };
+  B.LoadVars.prototype.toString = function () { return varsOf(this).toString(); };
+  B.LoadVars.prototype.decode = function (s) {
+    for (const [k, v] of new URLSearchParams(String(s))) this[k] = v;
+  };
+  B.LoadVars.prototype.load = function (url) {
+    fetch(String(url)).then((r) => (r.ok ? r.text() : Promise.reject(r.status)))
+      .then((raw) => deliver(this, true, raw), () => deliver(this, false));
+    return true;
+  };
+  B.LoadVars.prototype.send = function () { return false; };     // (it opened a browser window)
+  B.LoadVars.prototype.sendAndLoad = function (url, target, method) {
+    url = String(url);
+    const vars = varsOf(this);
+    (async () => {
+      if (/\/SaveScore$/i.test(url)) {
+        const name = player.scoreName ? await player.scoreName() : null;
+        if (!name) throw new Error('no name');
+        vars.set('username', name);
+      }
+      const post = String(method || 'POST').toUpperCase() !== 'GET';
+      const r = await fetch(post ? url : url + (url.includes('?') ? '&' : '?') + vars, post
+        ? { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: vars.toString() } : undefined);
+      return r.ok ? r.text() : Promise.reject(r.status);
+    })().then((raw) => deliver(target, true, raw), () => deliver(target, false));
+    return true;
   };
   B.MovieClipLoader = function MovieClipLoader() {
     this.addListener = () => true;

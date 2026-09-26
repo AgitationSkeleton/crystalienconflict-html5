@@ -45,7 +45,11 @@ same parameters, and the loader loads the game exactly as before.
 ## Differences from the original
 
 - **High scores.** The game submitted and fetched scores from LEGO's servers, which no
-  longer exist. Those requests are not made.
+  longer exist. It talks to a server of the port's own instead (`cacserver.viosarcade.xyz`,
+  shared with the online version; its code is in that repository's `server/`), with the
+  game's own requests and checks unchanged. LEGO's server knew who was logged in: here the
+  page asks for a name when a finished Conflict run's score is sent, and the line that said
+  the score was saved to lego.com says it goes on the high score table.
 - **Tracking.** The loader fetched a third-party page counter; it is not fetched.
 - **Right-click** does nothing, where the original showed a one-item menu linking to
   lego.com.

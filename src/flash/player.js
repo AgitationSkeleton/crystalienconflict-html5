@@ -73,6 +73,7 @@ export class Player {
     this.hitContext = hc.getContext('2d');
     this.openMovie = opts.openMovie || null;   // "game.swf" -> { lib, ready } (see loadMovieNum)
     this.onError = opts.onError || ((key, e) => console.error('[as2]', key, e));
+    this.scoreName = opts.scoreName || null;    // () -> Promise of the name a high score goes under (LoadVars)
     this.startTime = performance.now();
     this.random = Math.random;
     installBuiltins(this);

@@ -5,8 +5,13 @@
 
 import { Player } from './flash/player.js';
 import { Library } from './flash/library.js';
+import { scoreServer, askScoreName } from './hiscore.js';
 
-const FLASHVARS = { xmlurl: 'data/dialogue.xml', asseturl: '', serviceurl: '', gamename: 'CrystAlienConflict' };
+// serviceurl: the high-score server (src/hiscore.js).  username: the game sends a finished
+// Conflict run's score only for someone logged in to LEGO's site; here anyone may, and is asked
+// for a name when a score is sent (scoreName, below).
+const FLASHVARS = { xmlurl: 'data/dialogue.xml', asseturl: '', serviceurl: scoreServer(new URLSearchParams(location.search)),
+  gamename: 'CrystAlienConflict', username: 'player' };
 const MOVIES = { 'game.swf': 'game' };     // loadMovieNum's file names -> converted movies
 const FPS = 23;
 
@@ -36,6 +41,7 @@ function openMovie(name) {
 const player = new Player(canvas, {
   flashVars: FLASHVARS,
   openMovie: (file) => (MOVIES[file] ? openMovie(MOVIES[file]) : null),
+  scoreName: () => askScoreName(),
 });
 globalThis.player = player;                // for the console and the verification harness
 
