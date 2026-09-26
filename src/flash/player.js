@@ -3,9 +3,12 @@
 // Frame cycle (23 times a second, the loader's rate -- which governs every level, as it
 // does in Flash):
 //
-//   1. Walk each level's display tree, parents before children.  For each clip already
-//      on stage, queue its enterFrame handlers, then advance its timeline, which applies
-//      the new frame's placements and queues that frame's scripts.
+//   1. Go through the clips on stage newest first.  Flash Player keeps every clip in one
+//      list, in the order they were made, and walks it from the most recent, so a
+//      level's root (and its onEnterFrame) comes after everything in it.  For each clip,
+//      queue its enterFrame handlers, then advance its timeline, which applies the new
+//      frame's placements and queues that frame's scripts.  A clip made during this pass
+//      is first advanced on the next frame.
 //   2. Run the action queue in order.  Scripts can queue more (a goto queues the target
 //      frame's script; attaching a clip queues its first frame), and those run too.
 //   3. Draw.
@@ -49,6 +52,7 @@ export class Player {
     this.lastAscii = 0;
     this.keyListeners = [];
     this.mouseListeners = [];
+    this.clips = new Set();             // every clip, oldest first: Flash's execution list
     this.withEvents = new Set();        // clips with onClipEvent handlers or on* methods
     this.hover = null;                  // button under the mouse
     this.pressed = null;                // button the mouse went down on
@@ -120,6 +124,7 @@ export class Player {
     root.$levelNumber = n;
     for (const [k, v] of Object.entries(this.flashVars)) if (n === 0) root[k] = v;
     this.levels[n] = root;
+    this.track(root);
     root.$construct();
     this.runQueue();
     return root;
@@ -138,6 +143,7 @@ export class Player {
     root.$total = 1;
     root.$cur = 1;
     this.levels[n] = root;
+    this.track(root);
     return root;
   }
 
@@ -182,8 +188,8 @@ export class Player {
 
   didPlace(child) {
     if (child instanceof MovieClip) {
-      child.$construct();
       this.track(child);
+      child.$construct();
       if (child.$events) this.withEvents.add(child);
       this.clipEvent(child, 'initialize');
       this.clipEvent(child, 'construct');
@@ -205,20 +211,21 @@ export class Player {
       for (const k of Object.keys(init)) clip[k] = init[k];
     }
     parent.$insert(clip, depth);
-    clip.$construct();
     this.track(clip);
+    clip.$construct();
     this.clipEvent(clip, 'load');
     clip.$loaded = true;
     return clip;
   }
 
+  // The execution list (see the top of this file).  A clip joins it when it is made,
+  // before its first frame places any children, so they run ahead of it.
   track(clip) {
-    if (!this.clips) this.clips = new Set();
     this.clips.add(clip);
   }
 
   forget(clip) {
-    if (this.clips) this.clips.delete(clip);
+    this.clips.delete(clip);
     this.withEvents.delete(clip);
     if (this.focus && this.focus.$removed) this.focus = null;
   }
@@ -337,9 +344,12 @@ export class Player {
   // ---- the frame -------------------------------------------------------------------------
   tick() {
     this.frame++;
-    for (const level of this.levels) {
-      if (level && !level.$pending) this.stepClip(level);
-    }
+    // Newest first, over the clips there were when the frame began.  The order decides
+    // which script has the last word when two change the same clip in one frame: the
+    // game's main loop, _level1's onEnterFrame, runs after the frame scripts of the clips
+    // it drives, so a clip it restarts is not halted by a stop() its old frame queued.
+    const clips = [...this.clips];
+    for (let i = clips.length - 1; i >= 0; i--) this.stepClip(clips[i]);
     this.runQueue();
     this.updateHover();
     // A text field's caret blinks about twice a second (12 frames on, 12 off).
@@ -347,7 +357,9 @@ export class Player {
   }
 
   stepClip(clip) {
-    if (clip.$removed) return;
+    // Not clips that have gone, levels still downloading, or the insides of hitProbe()'s
+    // throwaway instances, which are never on stage.
+    if (clip.$removed || clip.$pending || !clip.$isOnStage()) return;
     if (clip.$loaded || clip.$isLevel) {
       this.clipEvent(clip, 'enterFrame');
       if (typeof clip.onEnterFrame === 'function') {
@@ -357,11 +369,6 @@ export class Player {
       }
     }
     clip.$advance();
-    const kids = clip.$children.slice();
-    for (const c of kids) {
-      if (c instanceof MovieClip) this.stepClip(c);
-      else if (c instanceof ButtonObj) for (const s of c.$children) if (s instanceof MovieClip) this.stepClip(s);
-    }
   }
 
   draw() {
