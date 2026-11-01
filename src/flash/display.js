@@ -759,6 +759,25 @@ export class MovieClip extends DisplayObject {
     if (this.$cur > 1) this.$gotoFrame(this.$cur - 1, false);
   }
 
+  // The child at a depth, as Flash's (undefined when there is none).  The game asks it, for every
+  // unit and building it places, whether a depth is free (Arena.getZ): without it, two things at
+  // the same place swapped depths, and one of them kept the depth it was made at -- over the
+  // shroud.  (A binary search: the children are kept in depth order, and units ask every frame.)
+  getInstanceAtDepth(depth) {
+    const d = Math.trunc(+depth);
+    if (Number.isNaN(d)) return undefined;
+    const c = this.$children;
+    let lo = 0, hi = c.length - 1;
+    while (lo <= hi) {
+      const mid = (lo + hi) >> 1;
+      const at = c[mid].$depth;
+      if (at === d) return c[mid];
+      if (at < d) lo = mid + 1;
+      else hi = mid - 1;
+    }
+    return undefined;
+  }
+
   getNextHighestDepth() {
     let max = -1;
     for (const c of this.$children) if (c.$depth > max) max = c.$depth;
