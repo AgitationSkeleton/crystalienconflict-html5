@@ -36,6 +36,8 @@ export class Renderer {
     this.offsetX = 0;
     this.offsetY = 0;
     this.tints = new Map();           // "bitmapId|cx" -> canvas, least recently used first
+    this.tintMisses = new Map();      // picture -> its last new transform (drawTinted: one changing every frame)
+    this.drawCount = 0;               // drawings made (render)
     this.tintPixels = 0;
     this.filterDefs = new Map();      // key -> { id, el }
     this.filterIds = 1;
@@ -73,6 +75,7 @@ export class Renderer {
 
   render(levels, background) {
     const ctx = this.ctx;
+    this.drawCount++;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.globalAlpha = 1;
     ctx.filter = 'none';
@@ -396,6 +399,19 @@ export class Renderer {
     c = document.createElement('canvas');
     c.width = w;
     c.height = h;
+    // (Speed: made on the GPU, the picture drawn once through a colour-matrix filter -- Flash's
+    // sums, on unpremultiplied colour -- rather than its pixels read back, changed one by one and
+    // written again: a read back from the GPU stalls it, and a cutscene's fade asks for a new
+    // transform every frame.  Where the browser has no canvas filters, the old way.)
+    const url = w && h ? this.cxFilterUrl(cx) : null;
+    if (url) {
+      const fg = c.getContext('2d');
+      fg.filter = url;
+      fg.drawImage(img, 0, 0);
+      fg.filter = 'none';
+      this.keepTint(k, c, w, h);
+      return c;
+    }
     const g = c.getContext('2d', { willReadFrequently: true });
     g.drawImage(img, 0, 0);
     if (w && h) {
@@ -410,15 +426,58 @@ export class Renderer {
       }
       g.putImageData(d, 0, 0);
     }
+    this.keepTint(k, c, w, h);
+    return c;
+  }
+
+  // Colour tweens make a new tint every frame; keep about 64MB of them.
+  keepTint(k, c, w, h) {
     this.tints.set(k, c);
-    // Colour tweens make a new tint every frame; keep about 64MB of them.
     this.tintPixels += w * h;
     while (this.tintPixels > 16e6 && this.tints.size > 1) {
       const [oldKey, old] = this.tints.entries().next().value;
       this.tints.delete(oldKey);
       this.tintPixels -= old.width * old.height;
     }
-    return c;
+  }
+
+  // A Flash colour transform as an SVG colour-matrix filter (filterUrl), or null where a canvas
+  // takes no filters.  cx: multipliers in 256ths (red, green, blue, alpha), then offsets.
+  cxFilterUrl(cx) {
+    if (this.canvasFilters === undefined) {
+      try {
+        const t = document.createElement('canvas').getContext('2d');
+        t.filter = 'blur(1px)';
+        this.canvasFilters = t.filter === 'blur(1px)';
+      } catch (e) {
+        this.canvasFilters = false;
+      }
+    }
+    if (!this.canvasFilters) return null;
+    return this.filterUrl([{ type: 'colorMatrix', matrix: [cx[0] / 256, 0, 0, 0, cx[4], 0, cx[1] / 256, 0, 0, cx[5], 0, 0, cx[2] / 256, 0, cx[6], 0, 0, 0, cx[3] / 256, cx[7]] }]);
+  }
+
+  // A picture drawn in a colour transform: from the copy kept of it in that transform (tinted),
+  // or -- when its transform keeps changing, frame after frame, as in a cutscene's fade --
+  // straight through the transform's colour filter, no copy made of each step.
+  drawTinted(ctx, key, img, cx) {
+    const k = key + '|' + cxKey(cx);
+    if (this.tints.has(k)) {
+      ctx.drawImage(this.tinted(key, img, cx), 0, 0);
+      return;
+    }
+    const miss = this.tintMisses.get(key);
+    const recent = miss && this.drawCount - miss.at <= 2;
+    this.tintMisses.set(key, { at: this.drawCount, n: recent ? miss.n + 1 : 1 });
+    if (this.tintMisses.size > 4096) this.tintMisses.clear();
+    const url = recent && miss.n >= 2 ? this.cxFilterUrl(cx) : null;
+    if (url) {
+      ctx.filter = url;
+      ctx.drawImage(img, 0, 0);
+      ctx.filter = 'none';
+      return;
+    }
+    ctx.drawImage(this.tinted(key, img, cx), 0, 0);
   }
 
   drawBitmapChar(ctx, id, m, cx, lib, smooth, cm) {
@@ -437,7 +496,7 @@ export class Renderer {
       ctx.globalAlpha = 1;
     } else {
       ctx.globalAlpha = 1;
-      ctx.drawImage(this.tinted(key, img, cx), 0, 0);
+      this.drawTinted(ctx, key, img, cx);
     }
   }
 
@@ -453,7 +512,7 @@ export class Renderer {
       ctx.drawImage(src, 0, 0);
       ctx.globalAlpha = 1;
     } else {
-      ctx.drawImage(this.tinted(`bmd${bmd.$id}:${bmd.$version}`, src, cx), 0, 0);
+      this.drawTinted(ctx, `bmd${bmd.$id}:${bmd.$version}`, src, cx);
     }
   }
 

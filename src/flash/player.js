@@ -61,6 +61,13 @@ export class Player {
     this.keyListeners = [];
     this.mouseListeners = [];
     this.clips = new Set();             // every clip, oldest first: Flash's execution list
+    // (Speed: the few that hear the mouse or the keys, so that an event goes to them, not walked to
+    // every clip there is -- sixteen thousand on a big map, most of a frame for each move of the
+    // mouse.  Clips with clip events for them, as placed; clips that set a mouse handler
+    // (MovieClip's onMouseMove, onMouseDown, onMouseUp); buttons with a key in their actions.)
+    this.eventClips = new Set();
+    this.mouseClips = new Set();
+    this.keyButtons = new Set();
     this.withEvents = new Set();        // clips with onClipEvent handlers or on* methods
     this.hover = null;                  // button under the mouse
     this.pressed = null;                // button the mouse went down on
@@ -489,8 +496,20 @@ export class Player {
     for (const l of this.mouseListeners.slice()) this.queueMethod(l, 'onMouseWheel', delta);
   }
 
+  // Those of a set still on stage (the removed ones dropped from it).
+  listening(set) {
+    const out = [];
+    for (const c of set) {
+      if (c.$removed) { set.delete(c); continue; }
+      if (c.$pending || !c.$isOnStage()) continue;
+      out.push(c);
+    }
+    return out;
+  }
+
   broadcastMouse(method, clipEvent) {
-    for (const c of [...this.allClips()]) {
+    const clips = new Set([...this.listening(this.eventClips), ...this.listening(this.mouseClips)]);
+    for (const c of clips) {
       this.clipEvent(c, clipEvent);
       if (typeof c[method] === 'function') this.queueMethod(c, method);
     }
@@ -603,22 +622,22 @@ export class Player {
     this.lastAscii = ev.key.length === 1 ? ev.key.charCodeAt(0) : (code === 13 ? 13 : code === 8 ? 8 : 0);
     if (this.focus && !this.focus.$removed) this.text.keyInput(this.focus, ev);
     for (const l of this.keyListeners.slice()) this.queueMethod(l, 'onKeyDown');
-    for (const c of [...this.allClips()]) {
-      this.clipEvent(c, 'keyDown');
-      if (typeof c.onKeyDown === 'function' && c === this.focus) this.queueMethod(c, 'onKeyDown');
-    }
+    for (const c of this.listening(this.eventClips)) this.clipEvent(c, 'keyDown');
+    // (a clip's own onKeyDown: the one with the focus)
+    const f = this.focus;
+    if (f && !f.$removed && typeof f.onKeyDown === 'function' && f.$isOnStage()) this.queueMethod(f, 'onKeyDown');
     // Button key conditions fire on the press, not the repeat.
     if (!repeat) {
       const bk = BUTTON_KEYS[ev.key] !== undefined ? BUTTON_KEYS[ev.key]
         : (ev.key.length === 1 ? ev.key.charCodeAt(0) : null);
       if (bk !== null) {
-        for (const b of [...this.allButtons()]) {
+        for (const b of this.listening(this.keyButtons)) {
           if (!b.$enabled) continue;
           b.$char.acts.forEach((a, i) => {
             if (a.k === bk) this.queueButtonAction(b, i);
           });
         }
-        for (const c of [...this.allClips()]) this.clipEvent(c, 'keyPress', bk);
+        for (const c of this.listening(this.eventClips)) this.clipEvent(c, 'keyPress', bk);
       }
     }
     this.runQueue();
@@ -628,7 +647,7 @@ export class Player {
     this.keys.delete(ev.keyCode);
     this.lastKey = ev.keyCode;
     for (const l of this.keyListeners.slice()) this.queueMethod(l, 'onKeyUp');
-    for (const c of [...this.allClips()]) this.clipEvent(c, 'keyUp');
+    for (const c of this.listening(this.eventClips)) this.clipEvent(c, 'keyUp');
     this.runQueue();
   }
 

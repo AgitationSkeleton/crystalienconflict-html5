@@ -154,13 +154,25 @@ function loop(now) {
   // will have it, so that it moves smoothly however often the screen refreshes; the game keeps
   // its own frames.  (Not drawn again when nothing has changed: no frame since, nothing on its
   // way anywhere, and the mouse where it was.)
+  // (A computer that cannot draw that often in time -- its drawings slow, on average -- draws
+  // only the game's own frames, 23 a second as the original did, until it can again: what moves
+  // is not drawn on its way between them.  The time goes to the game, and to the sound.)
   const alpha = acc / STEP;
-  const state = player.frame + '|' + (player.lastMove === player.frame ? alpha : '') + '|' + player.mouse;
+  const smooth = !light && player.lastMove === player.frame;
+  const state = player.frame + '|' + (smooth ? alpha : '') + '|' + player.mouse;
   if (state !== drawn) {
     drawn = state;
-    player.draw(alpha);
+    const t0 = performance.now();
+    player.draw(light ? 1 : alpha);
+    drawAvg = drawAvg * 0.9 + (performance.now() - t0) * 0.1;
+    if (!light && drawAvg > LIGHT_ABOVE) light = true;
+    else if (light && drawAvg < LIGHT_BELOW) light = false;
   }
 }
+// (milliseconds a drawing takes, on average, over which only the game's frames are drawn, and
+// under which every refresh is again)
+const LIGHT_ABOVE = 10, LIGHT_BELOW = 5;
+let drawAvg = 0, light = false;
 
 // ---- start ---------------------------------------------------------------------------------
 async function start() {
